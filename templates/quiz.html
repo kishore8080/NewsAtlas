@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generated Quiz</title>
+</head>
+<body>
+    <h1>Your Generated MCQs</h1>
+    <ol>
+        {% for q in mcqs %}
+        <li>
+            <strong>{{ q.question }}</strong><br>
+            <ul>
+                {% for option in q.options %}
+                <li>{{ option }}</li>
+                {% endfor %}
+            </ul>
+            <em>Correct Answer: {{ q.correct_answer }}</em>
+        </li>
+        {% endfor %}
+    </ol>
+    <a href="/">Generate Another Quiz</a>
+</body>
+</html>
