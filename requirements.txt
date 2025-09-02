@@ -1,5 +1,10 @@
+langchain 
+langchain-openai
+openai
 fastapi
 uvicorn
-openai 
-python-multipart 
+python-multipart
 jinja2
+feedparser
+pydantic
+
