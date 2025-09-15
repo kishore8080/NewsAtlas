@@ -1,102 +1,102 @@
 [
     {
-        "question": "What recent event occurred in Assam's Guwahati?",
+        "question": "Who demanded the immediate removal of match referee Pycroft?",
         "options": [
-            "A) Floods",
-            "B) Earthquake",
-            "C) Landslide",
-            "D) Tsunami"
+            "A) PCB chief Naqvi",
+            "B) BCCI president",
+            "C) ICC chairman",
+            "D) Indian captain"
         ],
-        "answer": "B"
+        "answer": "A"
     },
     {
-        "question": "Which countries are competing in the Asia Cup 2025 cricket match mentioned in the news?",
-        "options": [
-            "A) India and Australia",
-            "B) India and Pakistan",
-            "C) India and Sri Lanka",
-            "D) India and Bangladesh"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Who is the new Prime Minister of Nepal as per the recent news?",
-        "options": [
-            "A) Sher Bahadur Deuba",
-            "B) Sushila Karki",
-            "C) Pushpa Kamal Dahal",
-            "D) Baburam Bhattarai"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What is the total value of health and infrastructure projects laid by PM Modi in Assam?",
-        "options": [
-            "A) ₹3,000 crore",
-            "B) ₹4,500 crore",
-            "C) ₹6,300 crore",
-            "D) ₹8,000 crore"
-        ],
-        "answer": "C"
-    },
-    {
-        "question": "Which country has been identified as a new villain in Trump's latest tariff post?",
+        "question": "Which country is being criticized for having the highest tariffs according to Trump advisor Navarro?",
         "options": [
             "A) India",
-            "B) Japan",
-            "C) China",
-            "D) Russia"
+            "B) China",
+            "C) Russia",
+            "D) Brazil"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "What did the Supreme Court rule regarding ASI-protected monuments?",
+        "options": [
+            "A) They can be declared as Waqfs",
+            "B) They cannot be declared as Waqfs",
+            "C) They can be sold",
+            "D) They can be converted into hotels"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Who was fatally hit by a BMW driven by Gagan Preet Makkad?",
+        "options": [
+            "A) A politician",
+            "B) A finance ministry official",
+            "C) A celebrity",
+            "D) A journalist"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "In which region did Modi state that every infiltrator has to go?",
+        "options": [
+            "A) Punjab",
+            "B) Seemanchal",
+            "C) Kashmir",
+            "D) Assam"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What was the context of PCB chief Naqvi's demand for the removal of Pycroft?",
+        "options": [
+            "A) A controversial match decision",
+            "B) A financial scandal",
+            "C) A player misconduct",
+            "D) A scheduling conflict"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "What issue did Trump advisor Navarro raise alongside tariffs?",
+        "options": [
+            "A) Immigration policies",
+            "B) Russia oil",
+            "C) Trade agreements",
+            "D) Climate change"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What was the Supreme Court's decision regarding the Waqf Amendment Act?",
+        "options": [
+            "A) To uphold it",
+            "B) To stay it",
+            "C) To amend it",
+            "D) To reject it"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "What was the profession of Navjot Singh, who was fatally hit in Delhi?",
+        "options": [
+            "A) Politician",
+            "B) Finance ministry official",
+            "C) Businessman",
+            "D) Teacher"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What did Modi accuse the Opposition of in relation to infiltrators?",
+        "options": [
+            "A) Supporting them",
+            "B) Ignoring them",
+            "C) Protecting them",
+            "D) Promoting them"
         ],
         "answer": "C"
-    },
-    {
-        "question": "What was the nature of the controversy surrounding the India vs Pakistan cricket match?",
-        "options": [
-            "A) Match fixing",
-            "B) Political tensions",
-            "C) Weather conditions",
-            "D) Player injuries"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What demand did the new Nepal PM Sushila Karki vow to follow?",
-        "options": [
-            "A) Increase military spending",
-            "B) End corruption",
-            "C) Improve education",
-            "D) Enhance trade relations"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "In which city did the earthquake tremors get felt apart from Guwahati?",
-        "options": [
-            "A) Kolkata",
-            "B) Jaipur",
-            "C) North Bengal",
-            "D) Delhi"
-        ],
-        "answer": "C"
-    },
-    {
-        "question": "What type of projects did PM Modi lay the foundation for in Assam?",
-        "options": [
-            "A) Educational projects",
-            "B) Health and infrastructure projects",
-            "C) Agricultural projects",
-            "D) IT projects"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What is the primary focus of the protests mentioned in relation to Nepal's new PM?",
-        "options": [
-            "A) Economic reforms",
-            "B) Ending corruption",
-            "C) Environmental issues",
-            "D) Labor rights"
-        ],
-        "answer": "B"
     }
 ]
