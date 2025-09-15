@@ -14,6 +14,7 @@ export default function DailyQuiz() {
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentQ, setCurrentQ] = useState(0);
 
   // Fetch quiz data
   useEffect(() => {
@@ -40,15 +41,31 @@ export default function DailyQuiz() {
       });
   }, []);
 
-  const handleSelect = (qIndex: number, option: string) => {
-    setAnswers({ ...answers, [qIndex]: option });
+  // --- NEW: reset currentQ when quiz changes to avoid out-of-range index
+  useEffect(() => {
+    setCurrentQ(0);
+  }, [quiz]);
+
+  // --- NEW: normalize option letter (extract first letter robustly)
+  const extractLetter = (opt: string) =>
+    (opt || "").toString().trim().charAt(0).toUpperCase();
+
+  // --- UPDATED: handleSelect now accepts full option string and stores the normalized letter
+  const handleSelect = (qIndex: number, opt: string) => {
+    const letter = extractLetter(opt);
+    setAnswers((prev) => ({ ...prev, [qIndex]: letter }));
   };
 
+  // --- NEW: normalize correct answer (handles "B", "B)", "B )", etc.)
+  const getCorrectLetter = (q: Question) =>
+    (q?.answer || "").toString().trim().charAt(0).toUpperCase();
+
+  // --- UPDATED: use getCorrectLetter in scoring
   const score = Array.isArray(quiz)
-    ? quiz.reduce(
-        (acc, q, idx) => acc + (answers[idx] === q.answer ? 1 : 0),
-        0
-      )
+    ? quiz.reduce((acc, q, idx) => {
+        const correct = getCorrectLetter(q);
+        return acc + (answers[idx] === correct ? 1 : 0);
+      }, 0)
     : 0;
 
   if (loading) {
@@ -59,55 +76,100 @@ export default function DailyQuiz() {
     return <p className="p-6 text-red-600">No quiz available.</p>;
   }
 
+  // guard q - in case currentQ is out of bounds
+  const q = quiz[currentQ];
+  if (!q) return <p className="p-6 text-red-600">Invalid question index.</p>;
+
   return (
-     <div className="min-h-screen bg-blue-100 flex flex-col items-center py-10">
-      <h1 className="text-2xl font-bold text-black mb-6">Daily UPSC Quiz!!</h1>
+    <div className="min-h-screen bg-blue-100 flex flex-col items-center py-10">
+      <h1 className="text-2xl font-bold text-black mb-6">Daily Event Quiz!!</h1>
 
-      {quiz.map((q, idx) => (
-        <div key={idx} className="mb-6 p-4 border rounded-lg">
-          <p className="font-bold text-black text-lg">
-            {idx + 1}. {q.question}
-          </p>
+      <div className="mb-6 p-4 border rounded-lg w-full max-w-2xl bg-white">
+      {/* Show only the base question text */}
+<p className="font-bold text-black text-lg mb-2">
+  {currentQ + 1}. {q.question.replace(/(\d\..*)/, "").trim()}
+</p>
 
-          <ul>
-            {q.options.map((opt, i) => (
+{/* Show statements cleanly, one per line */}
+{q.statements && q.statements.length > 0 && (
+  <div className="mb-4 text-black">
+    {q.statements.map((stmt, i) => (
+      <p key={i} className="mb-1">
+         {stmt}
+      </p>
+    ))}
+  </div>
+)}
+        <ul>
+          {q.options.map((opt, i) => {
+            const letter = extractLetter(opt); // normalized letter for this option
+            const selected = answers[currentQ] === letter;
+            return (
               <li key={i}>
                 <button
-                  onClick={() => handleSelect(idx, opt[0])}
-                  className={`block w-full text-left p-2 rounded-md border mb-1 ${
-                    answers[idx] === opt[0]
-                      ? "bg-blue-500 text-black"
-                      : "bg-black"
+                  onClick={() => handleSelect(currentQ, opt)} // pass full opt
+                  className={`block w-full text-left p-2 rounded-md border mb-1 font-semibold ${
+                    selected
+                      ? "bg-blue-200 text-black border-black"
+                      : "bg-white text-black border-black hover:bg-gray-100"
                   }`}
                 >
                   {opt}
                 </button>
               </li>
-            ))}
-          </ul>
+            );
+          })}
+        </ul>
 
-          {submitted && (
-            <p
-              className={`mt-2 ${
-                answers[idx] === q.answer ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              Correct answer: {q.answer}
-            </p>
-          )}
-        </div>
-      ))}
+        {submitted && (
+          <p
+            className={`mt-2 ${
+              answers[currentQ] === getCorrectLetter(q)
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
+            Correct answer: {getCorrectLetter(q)}
+          </p>
+        )}
+      </div>
 
-      {!submitted ? (
-        <button
-          onClick={() => setSubmitted(true)}
-          className="bg-green-600 text-white px-4 py-2 rounded-md"
-        >
-          Submit Quiz
-        </button>
-      ) : (
-        <p className="text-xl font-bold mt-4">
-          ✅ You scored {score} / {quiz.length}
+      {/* Navigation */}
+      <div className="flex justify-between w-full max-w-2xl">
+        {currentQ > 0 && !submitted && (
+          <button
+            onClick={() => setCurrentQ((s) => Math.max(0, s - 1))}
+            className="bg-gray-400 text-white px-4 py-2 rounded-md"
+          >
+            Previous
+          </button>
+        )}
+
+        {!submitted && currentQ < quiz.length - 1 && (
+          <button
+            onClick={() => setCurrentQ((s) => Math.min(quiz.length - 1, s + 1))}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md ml-auto"
+            disabled={!answers[currentQ]}
+          >
+            Next
+          </button>
+        )}
+
+        {!submitted && currentQ === quiz.length - 1 && (
+          <button
+            onClick={() => setSubmitted(true)}
+            className="bg-green-600 text-white px-4 py-2 rounded-md ml-auto"
+            disabled={!answers[currentQ]}
+          >
+            Submit Quiz
+          </button>
+        )}
+      </div>
+
+      {/* Show score only after submission */}
+      {submitted && (
+        <p className="text-xl text-black font-bold mt-6">
+           You scored {score} / {quiz.length}
         </p>
       )}
     </div>
