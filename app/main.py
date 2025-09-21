@@ -17,10 +17,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # /QUIZAI/app
 ROOT_DIR = os.path.dirname(BASE_DIR)                  # /QUIZAI
 OUTPUT_DIR = os.path.join(ROOT_DIR, "json-output-files")
 
-def run_pipeline():
+def getquiz():
     """Run the full pipeline inside venv Python"""
     python_exec = sys.executable   # points to venv/bin/python or venv/Scripts/python.exe
-
+    
     #subprocess.run([python_exec, os.path.join(BASE_DIR, "FetchAPI.py")], check=True)
     #subprocess.run([python_exec, os.path.join(BASE_DIR, "MCQGen.py")], check=True)
     #subprocess.run([python_exec, os.path.join(BASE_DIR, "UPSCMCQGen.py")], check=True)
@@ -34,5 +34,5 @@ def run_pipeline():
 
 @app.get("/quiz/daily")
 def get_daily_quiz():
-    quiz = run_pipeline()
+    quiz = getquiz()
     return {"quiz": quiz}

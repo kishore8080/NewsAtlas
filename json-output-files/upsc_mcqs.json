@@ -1,9 +1,23 @@
 [
     {
-        "question": "Consider the following statements regarding a recent event in Assam's Guwahati: 1. An earthquake was reported in the region. 2. The event caused significant damage to infrastructure.",
+        "question": "Consider the following statements regarding recent actions taken by the Indian government concerning H-1B visa holders:",
         "statements": [
-            "1. An earthquake was reported in the region.",
-            "2. The event caused significant damage to infrastructure."
+            "1. The Indian government has increased visa fees for H-1B visa holders.",
+            "2. The Indian government has asked its missions to assist Indians traveling to the United States."
+        ],
+        "options": [
+            "A) 1 only",
+            "B) 2 only",
+            "C) Both 1 and 2",
+            "D) Neither 1 nor 2"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Consider the following statements regarding PM Modi's identification of India's biggest enemy amid discussions of US tariffs: 1. PM Modi identified dependence as a significant challenge for India. 2. PM Modi emphasized that corruption is a major issue in the country.",
+        "statements": [
+            "1. PM Modi identified dependence as a significant challenge for India.",
+            "2. PM Modi emphasized that corruption is a major issue in the country."
         ],
         "options": [
             "A) 1 only",
@@ -14,80 +28,10 @@
         "answer": "A"
     },
     {
-        "question": "Consider the following statements regarding the teams competing in the Asia Cup 2025 cricket match: 1. India is one of the teams participating. 2. Pakistan is also one of the teams participating.",
+        "question": "Consider the following statements regarding the scheduled visit to America for trade talks on September 22: 1. The visit is being undertaken by the Commerce Minister. 2. The visit is part of ongoing trade negotiations between India and the United States.",
         "statements": [
-            "1. India is one of the teams participating.",
-            "2. Pakistan is also one of the teams participating."
-        ],
-        "options": [
-            "A) 1 only",
-            "B) 2 only",
-            "C) Both 1 and 2",
-            "D) Neither 1 nor 2"
-        ],
-        "answer": "C"
-    },
-    {
-        "question": "Consider the following statements regarding the new Prime Minister of Nepal: 1. Sher Bahadur Deuba is the current Prime Minister of Nepal. 2. Pushpa Kamal Dahal has recently assumed the office of Prime Minister.",
-        "statements": [
-            "1. Sher Bahadur Deuba is the current Prime Minister of Nepal.",
-            "2. Pushpa Kamal Dahal has recently assumed the office of Prime Minister."
-        ],
-        "options": [
-            "A) 1 only",
-            "B) 2 only",
-            "C) Both 1 and 2",
-            "D) Neither 1 nor 2"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Consider the following statements regarding health and infrastructure projects laid by PM Modi in Assam.",
-        "statements": [
-            "1. The total value of health and infrastructure projects laid by PM Modi in Assam is approximately ₹3,000 crore.",
-            "2. The total value of health and infrastructure projects laid by PM Modi in Assam is approximately ₹6,300 crore."
-        ],
-        "options": [
-            "A) 1 only",
-            "B) 2 only",
-            "C) Both 1 and 2",
-            "D) Neither 1 nor 2"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Consider the following statements regarding the identification of countries in the context of tariff policies: 1. India has been identified as a new villain in Trump's latest tariff post. 2. China has been identified as a new villain in Trump's latest tariff post.",
-        "statements": [
-            "1. India has been identified as a new villain in Trump's latest tariff post.",
-            "2. China has been identified as a new villain in Trump's latest tariff post."
-        ],
-        "options": [
-            "A) 1 only",
-            "B) 2 only",
-            "C) Both 1 and 2",
-            "D) Neither 1 nor 2"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Consider the following statements regarding the controversy surrounding the India vs Pakistan cricket match: 1. The controversy was primarily driven by match fixing allegations. 2. Political tensions between the two nations played a significant role in the controversy.",
-        "statements": [
-            "1. The controversy was primarily driven by match fixing allegations.",
-            "2. Political tensions between the two nations played a significant role in the controversy."
-        ],
-        "options": [
-            "A) 1 only",
-            "B) 2 only",
-            "C) Both 1 and 2",
-            "D) Neither 1 nor 2"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Consider the following statements regarding the demands made by the new Prime Minister of Nepal, Sushila Karki.",
-        "statements": [
-            "1. Sushila Karki vowed to end corruption.",
-            "2. Sushila Karki vowed to increase military spending."
+            "1. The visit is being undertaken by the Commerce Minister.",
+            "2. The visit is part of ongoing trade negotiations between India and the United States."
         ],
         "options": [
             "A) 1 only",
@@ -98,10 +42,10 @@
         "answer": "A"
     },
     {
-        "question": "Consider the following statements regarding the cities where earthquake tremors were felt apart from Guwahati: 1. Kolkata 2. North Bengal",
+        "question": "Consider the following statements regarding a controversial statement made by Rahul Gandhi about the Modi government: 1. He supports the government. 2. He will reveal a 'hydrogen bomb' to prove vote theft.",
         "statements": [
-            "1. Kolkata",
-            "2. North Bengal"
+            "1. He supports the government.",
+            "2. He will reveal a 'hydrogen bomb' to prove vote theft."
         ],
         "options": [
             "A) 1 only",
@@ -112,10 +56,10 @@
         "answer": "B"
     },
     {
-        "question": "Consider the following statements regarding the projects for which PM Modi laid the foundation in Assam: 1. The projects primarily focus on health. 2. The projects include infrastructure development.",
+        "question": "Consider the following statements regarding the Supreme Court's decision on the Karnataka invitation to Banu Mushtaq:",
         "statements": [
-            "1. The projects primarily focus on health.",
-            "2. The projects include infrastructure development."
+            "1. The Supreme Court accepted the invitation extended to Banu Mushtaq.",
+            "2. The Supreme Court dismissed the plea challenging the invitation."
         ],
         "options": [
             "A) 1 only",
@@ -126,10 +70,66 @@
         "answer": "B"
     },
     {
-        "question": "Consider the following statements regarding the primary focus of the protests in relation to Nepal's new Prime Minister: 1. The protests primarily aim to address economic reforms. 2. The protests are centered on the issue of ending corruption.",
+        "question": "Consider the following statements regarding the primary focus of the US-India trade talks: 1. The talks aim to enhance military cooperation between the two nations. 2. The discussions primarily emphasize economic partnerships.",
         "statements": [
-            "1. The protests primarily aim to address economic reforms.",
-            "2. The protests are centered on the issue of ending corruption."
+            "1. The talks aim to enhance military cooperation between the two nations.",
+            "2. The discussions primarily emphasize economic partnerships."
+        ],
+        "options": [
+            "A) 1 only",
+            "B) 2 only",
+            "C) Both 1 and 2",
+            "D) Neither 1 nor 2"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Consider the following statements regarding the challenges emphasized by PM Modi in the context of US policies: 1. Economic independence is a significant challenge for India. 2. Climate change is not a primary concern in this context.",
+        "statements": [
+            "1. Economic independence is a significant challenge for India.",
+            "2. Climate change is not a primary concern in this context."
+        ],
+        "options": [
+            "A) 1 only",
+            "B) 2 only",
+            "C) Both 1 and 2",
+            "D) Neither 1 nor 2"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "Consider the following statements regarding the 'hydrogen bomb' mentioned by Rahul Gandhi: 1. It refers to a new energy policy. 2. It serves as a metaphor for political strategy.",
+        "statements": [
+            "1. It refers to a new energy policy.",
+            "2. It serves as a metaphor for political strategy."
+        ],
+        "options": [
+            "A) 1 only",
+            "B) 2 only",
+            "C) Both 1 and 2",
+            "D) Neither 1 nor 2"
+        ],
+        "answer": "D"
+    },
+    {
+        "question": "Consider the following statements regarding the public reaction to the Supreme Court's decision on the Karnataka Dasara festival invitation.",
+        "statements": [
+            "1. The public expressed widespread approval of the Supreme Court's decision.",
+            "2. There were instances of outrage and protests in response to the decision."
+        ],
+        "options": [
+            "A) 1 only",
+            "B) 2 only",
+            "C) Both 1 and 2",
+            "D) Neither 1 nor 2"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "Consider the following statements regarding the specific assistance requested by the Indian government from its missions abroad: 1. The government has sought financial aid for students studying overseas. 2. The government has requested help for Indians traveling to the US.",
+        "statements": [
+            "1. The government has sought financial aid for students studying overseas.",
+            "2. The government has requested help for Indians traveling to the US."
         ],
         "options": [
             "A) 1 only",

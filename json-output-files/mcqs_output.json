@@ -1,102 +1,102 @@
 [
     {
-        "question": "Who demanded the immediate removal of match referee Pycroft?",
+        "question": "What recent action has the Indian government taken regarding H-1B visa holders?",
         "options": [
-            "A) PCB chief Naqvi",
-            "B) BCCI president",
-            "C) ICC chairman",
-            "D) Indian captain"
+            "A) Increased visa fees",
+            "B) Asked missions to assist Indians traveling to the US",
+            "C) Suspended all H-1B visas",
+            "D) Introduced new visa categories"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What did PM Modi identify as India's biggest enemy amid discussions of US tariffs?",
+        "options": [
+            "A) Corruption",
+            "B) Dependence",
+            "C) Unemployment",
+            "D) Terrorism"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Who is scheduled to visit America for trade talks on September 22?",
+        "options": [
+            "A) Prime Minister Modi",
+            "B) Commerce Minister Piyush Goyal",
+            "C) Finance Minister Nirmala Sitharaman",
+            "D) External Affairs Minister S. Jaishankar"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What controversial statement did Rahul Gandhi make regarding the Modi government?",
+        "options": [
+            "A) He supports the government",
+            "B) He will reveal a 'hydrogen bomb' to prove vote theft",
+            "C) He plans to run for Prime Minister",
+            "D) He has resigned from politics"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What was the Supreme Court's decision regarding the Karnataka invitation to Banu Mushtaq?",
+        "options": [
+            "A) To accept the invitation",
+            "B) To dismiss the plea challenging the invitation",
+            "C) To hold a hearing on the matter",
+            "D) To issue a stay on the event"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What is the primary focus of the US-India trade talks mentioned in the news?",
+        "options": [
+            "A) Military cooperation",
+            "B) Economic partnerships",
+            "C) Environmental agreements",
+            "D) Cultural exchanges"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What did PM Modi emphasize as a significant challenge for India in the context of US policies?",
+        "options": [
+            "A) Climate change",
+            "B) Economic independence",
+            "C) Health care",
+            "D) Education reform"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What is the nature of the 'hydrogen bomb' mentioned by Rahul Gandhi?",
+        "options": [
+            "A) A new energy policy",
+            "B) A metaphor for political strategy",
+            "C) A scientific breakthrough",
+            "D) An accusation of electoral fraud"
+        ],
+        "answer": "D"
+    },
+    {
+        "question": "What was the public reaction to the Supreme Court's decision on the Karnataka Dasara festival invitation?",
+        "options": [
+            "A) Widespread approval",
+            "B) Outrage and protests",
+            "C) Indifference",
+            "D) Calls for further legal action"
         ],
         "answer": "A"
     },
     {
-        "question": "Which country is being criticized for having the highest tariffs according to Trump advisor Navarro?",
+        "question": "What specific assistance has the Indian government requested from its missions abroad?",
         "options": [
-            "A) India",
-            "B) China",
-            "C) Russia",
-            "D) Brazil"
-        ],
-        "answer": "A"
-    },
-    {
-        "question": "What did the Supreme Court rule regarding ASI-protected monuments?",
-        "options": [
-            "A) They can be declared as Waqfs",
-            "B) They cannot be declared as Waqfs",
-            "C) They can be sold",
-            "D) They can be converted into hotels"
+            "A) Financial aid for students",
+            "B) Help for Indians traveling to the US",
+            "C) Support for international trade",
+            "D) Diplomatic negotiations with China"
         ],
         "answer": "B"
-    },
-    {
-        "question": "Who was fatally hit by a BMW driven by Gagan Preet Makkad?",
-        "options": [
-            "A) A politician",
-            "B) A finance ministry official",
-            "C) A celebrity",
-            "D) A journalist"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "In which region did Modi state that every infiltrator has to go?",
-        "options": [
-            "A) Punjab",
-            "B) Seemanchal",
-            "C) Kashmir",
-            "D) Assam"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What was the context of PCB chief Naqvi's demand for the removal of Pycroft?",
-        "options": [
-            "A) A controversial match decision",
-            "B) A financial scandal",
-            "C) A player misconduct",
-            "D) A scheduling conflict"
-        ],
-        "answer": "A"
-    },
-    {
-        "question": "What issue did Trump advisor Navarro raise alongside tariffs?",
-        "options": [
-            "A) Immigration policies",
-            "B) Russia oil",
-            "C) Trade agreements",
-            "D) Climate change"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What was the Supreme Court's decision regarding the Waqf Amendment Act?",
-        "options": [
-            "A) To uphold it",
-            "B) To stay it",
-            "C) To amend it",
-            "D) To reject it"
-        ],
-        "answer": "A"
-    },
-    {
-        "question": "What was the profession of Navjot Singh, who was fatally hit in Delhi?",
-        "options": [
-            "A) Politician",
-            "B) Finance ministry official",
-            "C) Businessman",
-            "D) Teacher"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What did Modi accuse the Opposition of in relation to infiltrators?",
-        "options": [
-            "A) Supporting them",
-            "B) Ignoring them",
-            "C) Protecting them",
-            "D) Promoting them"
-        ],
-        "answer": "C"
     }
 ]
