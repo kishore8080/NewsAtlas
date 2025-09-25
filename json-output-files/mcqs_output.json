@@ -1,101 +1,101 @@
 [
     {
-        "question": "What recent action has the Indian government taken regarding H-1B visa holders?",
+        "question": "What was the outcome of the clashes in Leh Ladakh?",
         "options": [
-            "A) Increased visa fees",
-            "B) Asked missions to assist Indians traveling to the US",
-            "C) Suspended all H-1B visas",
-            "D) Introduced new visa categories"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What did PM Modi identify as India's biggest enemy amid discussions of US tariffs?",
-        "options": [
-            "A) Corruption",
-            "B) Dependence",
-            "C) Unemployment",
-            "D) Terrorism"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Who is scheduled to visit America for trade talks on September 22?",
-        "options": [
-            "A) Prime Minister Modi",
-            "B) Commerce Minister Piyush Goyal",
-            "C) Finance Minister Nirmala Sitharaman",
-            "D) External Affairs Minister S. Jaishankar"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What controversial statement did Rahul Gandhi make regarding the Modi government?",
-        "options": [
-            "A) He supports the government",
-            "B) He will reveal a 'hydrogen bomb' to prove vote theft",
-            "C) He plans to run for Prime Minister",
-            "D) He has resigned from politics"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What was the Supreme Court's decision regarding the Karnataka invitation to Banu Mushtaq?",
-        "options": [
-            "A) To accept the invitation",
-            "B) To dismiss the plea challenging the invitation",
-            "C) To hold a hearing on the matter",
-            "D) To issue a stay on the event"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What is the primary focus of the US-India trade talks mentioned in the news?",
-        "options": [
-            "A) Military cooperation",
-            "B) Economic partnerships",
-            "C) Environmental agreements",
-            "D) Cultural exchanges"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What did PM Modi emphasize as a significant challenge for India in the context of US policies?",
-        "options": [
-            "A) Climate change",
-            "B) Economic independence",
-            "C) Health care",
-            "D) Education reform"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What is the nature of the 'hydrogen bomb' mentioned by Rahul Gandhi?",
-        "options": [
-            "A) A new energy policy",
-            "B) A metaphor for political strategy",
-            "C) A scientific breakthrough",
-            "D) An accusation of electoral fraud"
-        ],
-        "answer": "D"
-    },
-    {
-        "question": "What was the public reaction to the Supreme Court's decision on the Karnataka Dasara festival invitation?",
-        "options": [
-            "A) Widespread approval",
-            "B) Outrage and protests",
-            "C) Indifference",
-            "D) Calls for further legal action"
+            "A) Four killed, 30 injured",
+            "B) No casualties reported",
+            "C) Peaceful resolution",
+            "D) Protests ended successfully"
         ],
         "answer": "A"
     },
     {
-        "question": "What specific assistance has the Indian government requested from its missions abroad?",
+        "question": "Who called off a strike amidst the unrest in Leh Ladakh?",
         "options": [
-            "A) Financial aid for students",
-            "B) Help for Indians traveling to the US",
-            "C) Support for international trade",
-            "D) Diplomatic negotiations with China"
+            "A) Sonam Wangchuk",
+            "B) Narendra Modi",
+            "C) Rahul Gandhi",
+            "D) Amit Shah"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "What action did the Karnataka High Court take regarding social media?",
+        "options": [
+            "A) Approved complete freedom",
+            "B) Imposed restrictions",
+            "C) Left it in a state of anarchic freedom",
+            "D) Established a regulatory framework"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Which Indian diaspora CEOs expressed their views on the H-1B visa changes proposed by Trump?",
+        "options": [
+            "A) Sundar Pichai and Satya Nadella",
+            "B) Ratan Tata and Mukesh Ambani",
+            "C) Arundhati Bhattacharya and N. R. Narayana Murthy",
+            "D) Indra Nooyi and Vinod Khosla"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "What was the nature of the allegations against the self-styled godman in Delhi?",
+        "options": [
+            "A) Financial fraud",
+            "B) Sexual harassment",
+            "C) Political corruption",
+            "D) Drug trafficking"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Which event triggered prohibitory orders in Leh Ladakh?",
+        "options": [
+            "A) Sports event",
+            "B) Political rally",
+            "C) Clashes between groups",
+            "D) Natural disaster"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "What was the response of the Karnataka High Court regarding social media regulation?",
+        "options": [
+            "A) Complete deregulation",
+            "B) Anarchic freedom is unacceptable",
+            "C) No intervention required",
+            "D) Social media should be government-controlled"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "How many people were reported injured in the Leh Ladakh clashes?",
+        "options": [
+            "A) 10",
+            "B) 20",
+            "C) 30",
+            "D) 40"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "What was the main concern raised by the Indian diaspora regarding H-1B visas?",
+        "options": [
+            "A) Increased fees",
+            "B) Job security",
+            "C) Visa restrictions",
+            "D) Processing delays"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "What did the self-styled godman allegedly do at the Delhi institute?",
+        "options": [
+            "A) Fundraising",
+            "B) Sexual harassment",
+            "C) Teaching",
+            "D) Counseling"
         ],
         "answer": "B"
     }

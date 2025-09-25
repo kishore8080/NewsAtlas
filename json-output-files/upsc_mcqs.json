@@ -1,23 +1,9 @@
 [
     {
-        "question": "Consider the following statements regarding recent actions taken by the Indian government concerning H-1B visa holders:",
+        "question": "Consider the following statements regarding the recent clashes in Leh Ladakh.",
         "statements": [
-            "1. The Indian government has increased visa fees for H-1B visa holders.",
-            "2. The Indian government has asked its missions to assist Indians traveling to the United States."
-        ],
-        "options": [
-            "A) 1 only",
-            "B) 2 only",
-            "C) Both 1 and 2",
-            "D) Neither 1 nor 2"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Consider the following statements regarding PM Modi's identification of India's biggest enemy amid discussions of US tariffs: 1. PM Modi identified dependence as a significant challenge for India. 2. PM Modi emphasized that corruption is a major issue in the country.",
-        "statements": [
-            "1. PM Modi identified dependence as a significant challenge for India.",
-            "2. PM Modi emphasized that corruption is a major issue in the country."
+            "1. Four individuals were killed and 30 others were injured during the clashes.",
+            "2. No casualties were reported as a result of the clashes."
         ],
         "options": [
             "A) 1 only",
@@ -28,10 +14,10 @@
         "answer": "A"
     },
     {
-        "question": "Consider the following statements regarding the scheduled visit to America for trade talks on September 22: 1. The visit is being undertaken by the Commerce Minister. 2. The visit is part of ongoing trade negotiations between India and the United States.",
+        "question": "Consider the following statements regarding the recent unrest in Leh Ladakh: 1. Sonam Wangchuk called off a strike amidst the unrest. 2. Narendra Modi was involved in negotiations to resolve the situation.",
         "statements": [
-            "1. The visit is being undertaken by the Commerce Minister.",
-            "2. The visit is part of ongoing trade negotiations between India and the United States."
+            "1. Sonam Wangchuk called off a strike amidst the unrest.",
+            "2. Narendra Modi was involved in negotiations to resolve the situation."
         ],
         "options": [
             "A) 1 only",
@@ -42,52 +28,10 @@
         "answer": "A"
     },
     {
-        "question": "Consider the following statements regarding a controversial statement made by Rahul Gandhi about the Modi government: 1. He supports the government. 2. He will reveal a 'hydrogen bomb' to prove vote theft.",
+        "question": "Consider the following statements regarding the action taken by the Karnataka High Court on social media.",
         "statements": [
-            "1. He supports the government.",
-            "2. He will reveal a 'hydrogen bomb' to prove vote theft."
-        ],
-        "options": [
-            "A) 1 only",
-            "B) 2 only",
-            "C) Both 1 and 2",
-            "D) Neither 1 nor 2"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Consider the following statements regarding the Supreme Court's decision on the Karnataka invitation to Banu Mushtaq:",
-        "statements": [
-            "1. The Supreme Court accepted the invitation extended to Banu Mushtaq.",
-            "2. The Supreme Court dismissed the plea challenging the invitation."
-        ],
-        "options": [
-            "A) 1 only",
-            "B) 2 only",
-            "C) Both 1 and 2",
-            "D) Neither 1 nor 2"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Consider the following statements regarding the primary focus of the US-India trade talks: 1. The talks aim to enhance military cooperation between the two nations. 2. The discussions primarily emphasize economic partnerships.",
-        "statements": [
-            "1. The talks aim to enhance military cooperation between the two nations.",
-            "2. The discussions primarily emphasize economic partnerships."
-        ],
-        "options": [
-            "A) 1 only",
-            "B) 2 only",
-            "C) Both 1 and 2",
-            "D) Neither 1 nor 2"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Consider the following statements regarding the challenges emphasized by PM Modi in the context of US policies: 1. Economic independence is a significant challenge for India. 2. Climate change is not a primary concern in this context.",
-        "statements": [
-            "1. Economic independence is a significant challenge for India.",
-            "2. Climate change is not a primary concern in this context."
+            "1. The Karnataka High Court imposed restrictions on social media.",
+            "2. The Karnataka High Court approved complete freedom for social media."
         ],
         "options": [
             "A) 1 only",
@@ -98,10 +42,39 @@
         "answer": "A"
     },
     {
-        "question": "Consider the following statements regarding the 'hydrogen bomb' mentioned by Rahul Gandhi: 1. It refers to a new energy policy. 2. It serves as a metaphor for political strategy.",
+        "question": "Consider the following statements regarding Indian diaspora CEOs and their views on the H-1B visa changes proposed by Trump: 1. Sundar Pichai expressed his views on the proposed changes. 2. Satya Nadella also commented on the implications of the changes. Which of the above statements is/are correct?",
         "statements": [
-            "1. It refers to a new energy policy.",
-            "2. It serves as a metaphor for political strategy."
+            "1. Sundar Pichai expressed his views on the proposed changes.",
+            "2. Satya Nadella also commented on the implications of the changes."
+        ],
+        "options": [
+            "A) 1 only",
+            "B) 2 only",
+            "C) Both 1 and 2",
+            "D) Neither 1 nor 2"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "Consider the following statements regarding the allegations against the self-styled godman in Delhi:",
+        "statements": [
+            "1. The allegations include financial fraud.",
+            "2. The allegations include sexual harassment."
+        ],
+        "options": [
+            "A) 1 only",
+            "B) 2 only",
+            "C) Both 1 and 2",
+            "D) Neither 1 nor 2"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Consider the following statements regarding the event that triggered prohibitory orders in Leh Ladakh:",
+        "statements": [
+            "1. The event was a sports event.",
+            "2. The event was a political rally.",
+            "3. The event involved clashes between groups."
         ],
         "options": [
             "A) 1 only",
@@ -112,10 +85,38 @@
         "answer": "D"
     },
     {
-        "question": "Consider the following statements regarding the public reaction to the Supreme Court's decision on the Karnataka Dasara festival invitation.",
+        "question": "Consider the following statements regarding the response of the Karnataka High Court on social media regulation:",
         "statements": [
-            "1. The public expressed widespread approval of the Supreme Court's decision.",
-            "2. There were instances of outrage and protests in response to the decision."
+            "1. The Karnataka High Court advocated for complete deregulation of social media.",
+            "2. The Karnataka High Court stated that anarchic freedom in social media is unacceptable."
+        ],
+        "options": [
+            "A) 1 only",
+            "B) 2 only",
+            "C) Both 1 and 2",
+            "D) Neither 1 nor 2"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Consider the following statements regarding the recent clashes in Leh Ladakh: 1. A total of 10 individuals were reported injured. 2. A total of 30 individuals were reported injured.",
+        "statements": [
+            "1. A total of 10 individuals were reported injured.",
+            "2. A total of 30 individuals were reported injured."
+        ],
+        "options": [
+            "A) 1 only",
+            "B) 2 only",
+            "C) Both 1 and 2",
+            "D) Neither 1 nor 2"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Consider the following statements regarding the concerns raised by the Indian diaspora about H-1B visas.",
+        "statements": [
+            "1. Increased fees associated with H-1B visa applications have been a concern.",
+            "2. Job security for H-1B visa holders has been a significant issue."
         ],
         "options": [
             "A) 1 only",
@@ -126,10 +127,10 @@
         "answer": "A"
     },
     {
-        "question": "Consider the following statements regarding the specific assistance requested by the Indian government from its missions abroad: 1. The government has sought financial aid for students studying overseas. 2. The government has requested help for Indians traveling to the US.",
+        "question": "Consider the following statements regarding the allegations against a self-styled godman at a Delhi institute.",
         "statements": [
-            "1. The government has sought financial aid for students studying overseas.",
-            "2. The government has requested help for Indians traveling to the US."
+            "1. The self-styled godman was involved in fundraising activities at the institute.",
+            "2. The self-styled godman was accused of sexual harassment at the institute."
         ],
         "options": [
             "A) 1 only",
