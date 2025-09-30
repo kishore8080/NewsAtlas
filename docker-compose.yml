@@ -1,0 +1,29 @@
+version: "3.3"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+      - ./json-output-files:/json-output-files
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./frontendnext/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontendnext:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
