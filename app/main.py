@@ -4,10 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI() 
 
-
+FRONTEND_EXTERNAL = "http://35.192.3.34"  
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # later restrict to your frontend domain
+    allow_origins=[
+        FRONTEND_EXTERNAL,      # External browser frontend
+        "http://frontend-service"  # Kubernetes internal DNS],  
+    ],           
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

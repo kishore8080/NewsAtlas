@@ -1,13 +1,22 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine 
 
 WORKDIR /frontendnext
 
-COPY /frontendnext .
 
 # Install dependencies first (for caching)
-# COPY package.json package-lock.json* yarn.lock* ./
-RUN npm install || yarn install
+COPY package.json package-lock.json* yarn.lock* ./
+
+
+# Set build-time arg for backend URL
+
+COPY . .
+
+ARG NEXT_PUBLIC_API_BASE
+ENV NEXT_PUBLIC_API_BASE=$NEXT_PUBLIC_API_BASE
+# Build frontend
+RUN npm install
 
 EXPOSE 3000
 
-CMD ["npm", "run", "dev"]
+# Start in production mode
+CMD ["npm","run","dev"]
