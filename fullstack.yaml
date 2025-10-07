@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fullstack-deployment
+  labels:
+    app: fullstack
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fullstack
+  template:
+    metadata:
+      labels:
+        app: fullstack
+    spec:
+      containers:
+      - name: fullstack
+        image: us-central1-docker.pkg.dev/protean-mind-243117/my-docker-repo/fullstack:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "8000"
+        - name: NEXT_PUBLIC_API_BASE
+          value: "http://localhost:8000"  # since both run inside the same container
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fullstack-service
+spec:
+  selector:
+    app: fullstack
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: LoadBalancer
+

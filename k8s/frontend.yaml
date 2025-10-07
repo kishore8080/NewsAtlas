@@ -16,12 +16,12 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: us-central1-docker.pkg.dev/protean-mind-243117/my-docker-repo/frontend:latest
+        image: us-central1-docker.pkg.dev/protean-mind-243117/my-docker-repo/frontend:v1
         ports:
         - containerPort: 3000
         env:
-        - name: NEXT_PUBLIC_API_BASE
-          value: http://backend-service:8000
+        - name: NEXT_PUBLIC_API_URL
+          value: "http://backend-service:8000"
 
 ---
 apiVersion: v1

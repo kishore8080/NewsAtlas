@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: us-central1-docker.pkg.dev/protean-mind-243117/my-docker-repo/backend:latest
+        image: us-central1-docker.pkg.dev/protean-mind-243117/my-docker-repo/backend:v1
         ports:
         - containerPort: 8000
 ---
