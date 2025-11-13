@@ -6,9 +6,13 @@ text_splitter=RecursiveCharacterTextSplitter(
     chunk_overlap=75,
 )
 
-clean_text_path ="/home/kishorereddy2rana/eazyprepAI/RAG/documents/eazyprepAI_clean.txt"
+import os
 
-with open(clean_text_path, "r",encoding="utf-8") as f:
+#Load the clean script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  
+ROOT_DIR = os.path.dirname(BASE_DIR)
+
+with open(rf"{ROOT_DIR}\documents\eazyprepAI_clean.txt", "r",encoding="utf-8") as f:
        clean_text_file = f.read()
 
 chunks = text_splitter.split_text(clean_text_file)
@@ -30,7 +34,7 @@ documents=[
 ]
 #print(documents)
 
-with open ("/home/kishorereddy2rana/eazyprepAI/RAG/documents/chunk_file.json","w",encoding="utf-8") as f:
+with open (rf"{ROOT_DIR}\documents\chunk_file.json","w",encoding="utf-8") as f:
         json.dump(documents,f,ensure_ascii=False, indent=2)
 print("chunk file saved")
 

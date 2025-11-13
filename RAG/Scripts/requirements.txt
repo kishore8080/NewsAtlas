@@ -1,2 +1,5 @@
 langchain
 langchain-text-splitters
+langchain_community
+sentence-transformers
+chromadb
