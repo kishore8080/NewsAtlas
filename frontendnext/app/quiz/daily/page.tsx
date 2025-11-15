@@ -17,7 +17,8 @@ export default function DailyQuiz() {
   const [currentQ, setCurrentQ] = useState(0);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/quiz/daily`)
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+    fetch(`${apiBase}/quiz/daily`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
