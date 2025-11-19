@@ -1,0 +1,102 @@
+[
+    {
+        "question": "What was the outcome of the clashes in Leh Ladakh?",
+        "options": [
+            "A) Four killed, 30 injured",
+            "B) No casualties reported",
+            "C) Peaceful resolution",
+            "D) Protests ended successfully"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "Who called off a strike amidst the unrest in Leh Ladakh?",
+        "options": [
+            "A) Sonam Wangchuk",
+            "B) Narendra Modi",
+            "C) Rahul Gandhi",
+            "D) Amit Shah"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "What action did the Karnataka High Court take regarding social media?",
+        "options": [
+            "A) Approved complete freedom",
+            "B) Imposed restrictions",
+            "C) Left it in a state of anarchic freedom",
+            "D) Established a regulatory framework"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Which Indian diaspora CEOs expressed their views on the H-1B visa changes proposed by Trump?",
+        "options": [
+            "A) Sundar Pichai and Satya Nadella",
+            "B) Ratan Tata and Mukesh Ambani",
+            "C) Arundhati Bhattacharya and N. R. Narayana Murthy",
+            "D) Indra Nooyi and Vinod Khosla"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "What was the nature of the allegations against the self-styled godman in Delhi?",
+        "options": [
+            "A) Financial fraud",
+            "B) Sexual harassment",
+            "C) Political corruption",
+            "D) Drug trafficking"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Which event triggered prohibitory orders in Leh Ladakh?",
+        "options": [
+            "A) Sports event",
+            "B) Political rally",
+            "C) Clashes between groups",
+            "D) Natural disaster"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "What was the response of the Karnataka High Court regarding social media regulation?",
+        "options": [
+            "A) Complete deregulation",
+            "B) Anarchic freedom is unacceptable",
+            "C) No intervention required",
+            "D) Social media should be government-controlled"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "How many people were reported injured in the Leh Ladakh clashes?",
+        "options": [
+            "A) 10",
+            "B) 20",
+            "C) 30",
+            "D) 40"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "What was the main concern raised by the Indian diaspora regarding H-1B visas?",
+        "options": [
+            "A) Increased fees",
+            "B) Job security",
+            "C) Visa restrictions",
+            "D) Processing delays"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "What did the self-styled godman allegedly do at the Delhi institute?",
+        "options": [
+            "A) Fundraising",
+            "B) Sexual harassment",
+            "C) Teaching",
+            "D) Counseling"
+        ],
+        "answer": "B"
+    }
+]

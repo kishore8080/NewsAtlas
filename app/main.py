@@ -1,16 +1,36 @@
-from fastapi import FastAPI
-import subprocess, json, os, sys
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import subprocess, json, os, sys
 
-app = FastAPI() 
+app = FastAPI(
+    title="EazyPrepAI API",
+    description="Backend API for EazyPrepAI - AI-Powered UPSC Preparation Platform",
+    version="1.0.0"
+)
 
-FRONTEND_EXTERNAL = "http://35.192.3.34"  
+# CORS Configuration - supports localhost, Vercel, and custom origins
+# Get allowed origins from environment or use defaults
+ALLOWED_ORIGINS_ENV = os.getenv("ALLOWED_ORIGINS", "")
+
+# Build origins list
+origins = [
+    "http://localhost:3000",
+    "http://localhost:3001"
+]
+
+# Add custom origins from environment variable (comma-separated)
+if ALLOWED_ORIGINS_ENV:
+    origins.extend([origin.strip() for origin in ALLOWED_ORIGINS_ENV.split(",")])
+
+# Remove duplicates and filter empty strings
+origins = list(set(filter(None, origins)))
+
+# For production, you may want to add your Vercel domain explicitly:
+# origins.append("https://your-app.vercel.app")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        FRONTEND_EXTERNAL,      # External browser frontend
-        "http://frontend-service"  # Kubernetes internal DNS],  
-    ],           
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -35,7 +55,24 @@ def getquiz():
             return json.load(f)
     return {"error": "Quiz JSON not found"}
 
+@app.get("/")
+def root():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "EazyPrepAI API",
+        "version": "1.0.0"
+    }
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy"}
+
 @app.get("/quiz/daily")
 def get_daily_quiz():
+    """Get daily quiz questions"""
     quiz = getquiz()
+    if "error" in quiz:
+        raise HTTPException(status_code=404, detail=quiz["error"])
     return {"quiz": quiz}

@@ -67,7 +67,7 @@ export default function StudyPlanner() {
           {/* Today's Schedule */}
           <div>
             <Card>
-              <h2 className="text-xl font-semibold mb-4 text-gray-900">Today's Schedule</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-900">Today&apos;s Schedule</h2>
               <div className="mb-4">
                 <input
                   type="date"
@@ -111,7 +111,7 @@ export default function StudyPlanner() {
 
             {/* Progress */}
             <Card className="mt-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900">This Week's Progress</h2>
+              <h2 className="text-xl font-semibold mb-4 text-gray-900">This Week&apos;s Progress</h2>
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between mb-2">

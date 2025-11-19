@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton, SignInButton, useUser } from "@clerk/nextjs";
+import Button from "./ui/Button";
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -17,6 +19,7 @@ const navItems = [
 
 export default function Navigation() {
   const pathname = usePathname();
+  const { isSignedIn, isLoaded } = useUser();
 
   return (
     <nav className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50">
@@ -49,23 +52,51 @@ export default function Navigation() {
             })}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button className="text-gray-700 hover:text-gray-900">
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
+          {/* Auth Section */}
+          <div className="flex items-center space-x-4">
+            {isLoaded && (
+              <>
+                {isSignedIn ? (
+                  <UserButton
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-10 h-10",
+                      },
+                    }}
+                  />
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <SignInButton mode="modal">
+                      <Button variant="outline" size="sm">
+                        Sign In
+                      </Button>
+                    </SignInButton>
+                    <Link href="/sign-up">
+                      <Button size="sm">Sign Up</Button>
+                    </Link>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button className="text-gray-700 hover:text-gray-900">
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>

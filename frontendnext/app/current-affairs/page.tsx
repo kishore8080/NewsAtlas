@@ -110,7 +110,7 @@ export default function CurrentAffairs() {
             <div>
               <h3 className="text-2xl font-bold mb-2">Test Your Knowledge</h3>
               <p className="text-blue-100">
-                Take today's current affairs quiz to reinforce your learning
+                Take today&apos;s current affairs quiz to reinforce your learning
               </p>
             </div>
             <a href="/quiz/daily">

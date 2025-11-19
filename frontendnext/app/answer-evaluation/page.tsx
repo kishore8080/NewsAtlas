@@ -4,10 +4,18 @@ import { useState } from "react";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 
+interface Evaluation {
+  score: number;
+  feedback: string[];
+  strengths: string[];
+  improvements: string[];
+  wordCount: number;
+}
+
 export default function AnswerEvaluation() {
   const [answer, setAnswer] = useState("");
   const [question, setQuestion] = useState("");
-  const [evaluation, setEvaluation] = useState<any>(null);
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {

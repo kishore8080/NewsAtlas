@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fetchDailyQuiz } from "@/lib/api";
 
 type Question = {
   question: string;
@@ -17,10 +18,9 @@ export default function DailyQuiz() {
   const [currentQ, setCurrentQ] = useState(0);
 
   useEffect(() => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
-    fetch(`${apiBase}/quiz/daily`)
-      .then((res) => res.json())
-      .then((data) => {
+    const loadQuiz = async () => {
+      try {
+        const data = await fetchDailyQuiz();
         if (Array.isArray(data)) {
           setQuiz(data);
         } else if (data.quiz && Array.isArray(data.quiz)) {
@@ -28,9 +28,14 @@ export default function DailyQuiz() {
         } else {
           setQuiz([]);
         }
+      } catch (error) {
+        console.error("Failed to load quiz:", error);
+        setQuiz([]);
+      } finally {
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    };
+    loadQuiz();
   }, []);
 
   useEffect(() => {
