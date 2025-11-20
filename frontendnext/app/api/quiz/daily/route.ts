@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import quizBundle from "@/json-output-files/upsc_mcqs.json";
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,14 +27,12 @@ export async function GET(request: NextRequest) {
     }
 
     if (!jsonPath) {
-      return NextResponse.json(
-        { error: "Quiz JSON not found. Please ensure json-output-files/upsc_mcqs.json exists." },
-        { status: 404 }
-      );
+      // Fallback to bundled JSON (ensures availability in Vercel)
+      quiz = quizBundle;
+    } else {
+      const fileContent = fs.readFileSync(jsonPath, "utf-8");
+      quiz = JSON.parse(fileContent);
     }
-
-    const fileContent = fs.readFileSync(jsonPath, "utf-8");
-    quiz = JSON.parse(fileContent);
 
     // Normalize structure (the JSON might already have a `quiz` key)
     const quizData = Array.isArray(quiz)
