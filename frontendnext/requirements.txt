@@ -13,3 +13,12 @@
 # If you need to run subprocess commands (may not work in serverless)
 # subprocess - built-in
 
+
+# Script dependencies
+# Script dependencies
+feedparser
+openai
+langchain
+langchain-openai
+python-dotenv
+requests

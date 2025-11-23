@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import quizBundle from "@/json-output-files/upsc_mcqs.json";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Try multiple possible paths for the JSON file
     const possiblePaths = [
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Handle CORS
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(_request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: {
