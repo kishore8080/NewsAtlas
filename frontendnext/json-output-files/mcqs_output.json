@@ -1,101 +1,101 @@
 [
     {
-        "question": "What was the outcome of the clashes in Leh Ladakh?",
+        "question": "What did South Africa's Ramaphosa jokingly say to PM Modi regarding hosting the G20?",
         "options": [
-            "A) Four killed, 30 injured",
-            "B) No casualties reported",
-            "C) Peaceful resolution",
-            "D) Protests ended successfully"
-        ],
-        "answer": "A"
-    },
-    {
-        "question": "Who called off a strike amidst the unrest in Leh Ladakh?",
-        "options": [
-            "A) Sonam Wangchuk",
-            "B) Narendra Modi",
-            "C) Rahul Gandhi",
-            "D) Amit Shah"
-        ],
-        "answer": "A"
-    },
-    {
-        "question": "What action did the Karnataka High Court take regarding social media?",
-        "options": [
-            "A) Approved complete freedom",
-            "B) Imposed restrictions",
-            "C) Left it in a state of anarchic freedom",
-            "D) Established a regulatory framework"
+            "A) It's an easy task",
+            "B) It's a difficult task",
+            "C) It's a rewarding experience",
+            "D) It's a waste of time"
         ],
         "answer": "B"
     },
     {
-        "question": "Which Indian diaspora CEOs expressed their views on the H-1B visa changes proposed by Trump?",
+        "question": "Which Indian politician labeled the new labour codes as 'anti-national'?",
         "options": [
-            "A) Sundar Pichai and Satya Nadella",
-            "B) Ratan Tata and Mukesh Ambani",
-            "C) Arundhati Bhattacharya and N. R. Narayana Murthy",
-            "D) Indra Nooyi and Vinod Khosla"
+            "A) PM Modi",
+            "B) Rahul Gandhi",
+            "C) K Muraleedharan",
+            "D) Rajnath Singh"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "What did Rajnath Singh suggest about the borders of India?",
+        "options": [
+            "A) They are permanent",
+            "B) They can change",
+            "C) They should be expanded",
+            "D) They are irrelevant"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What tragic event is Wing Commander Afshan associated with?",
+        "options": [
+            "A) A natural disaster",
+            "B) A military exercise",
+            "C) A plane crash",
+            "D) A terrorist attack"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "What political issue has caused uproar in Punjab recently?",
+        "options": [
+            "A) New education policy",
+            "B) New Bill to appoint Lt Governor for Chandigarh",
+            "C) Changes in agricultural laws",
+            "D) Implementation of GST"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Which country is hosting the G20 summit mentioned in the news?",
+        "options": [
+            "A) India",
+            "B) South Africa",
+            "C) Brazil",
+            "D) Indonesia"
         ],
         "answer": "A"
     },
     {
-        "question": "What was the nature of the allegations against the self-styled godman in Delhi?",
+        "question": "What was K Muraleedharan's main concern regarding the new labour codes?",
         "options": [
-            "A) Financial fraud",
-            "B) Sexual harassment",
-            "C) Political corruption",
-            "D) Drug trafficking"
+            "A) Economic growth",
+            "B) Workers' justice",
+            "C) International relations",
+            "D) Environmental impact"
         ],
         "answer": "B"
     },
     {
-        "question": "Which event triggered prohibitory orders in Leh Ladakh?",
+        "question": "What did Rajnath Singh cite as a reason for the possibility of Sindh returning to India?",
         "options": [
-            "A) Sports event",
-            "B) Political rally",
-            "C) Clashes between groups",
-            "D) Natural disaster"
-        ],
-        "answer": "C"
-    },
-    {
-        "question": "What was the response of the Karnataka High Court regarding social media regulation?",
-        "options": [
-            "A) Complete deregulation",
-            "B) Anarchic freedom is unacceptable",
-            "C) No intervention required",
-            "D) Social media should be government-controlled"
+            "A) Economic ties",
+            "B) Civilizational links",
+            "C) Military agreements",
+            "D) Cultural exchanges"
         ],
         "answer": "B"
     },
     {
-        "question": "How many people were reported injured in the Leh Ladakh clashes?",
+        "question": "What was the emotional context of Wing Commander Afshan's goodbye?",
         "options": [
-            "A) 10",
-            "B) 20",
-            "C) 30",
-            "D) 40"
+            "A) A wedding",
+            "B) A promotion",
+            "C) A funeral",
+            "D) A retirement"
         ],
         "answer": "C"
     },
     {
-        "question": "What was the main concern raised by the Indian diaspora regarding H-1B visas?",
+        "question": "What is the primary focus of the new Bill causing political uproar in Punjab?",
         "options": [
-            "A) Increased fees",
-            "B) Job security",
-            "C) Visa restrictions",
-            "D) Processing delays"
-        ],
-        "answer": "C"
-    },
-    {
-        "question": "What did the self-styled godman allegedly do at the Delhi institute?",
-        "options": [
-            "A) Fundraising",
-            "B) Sexual harassment",
-            "C) Teaching",
-            "D) Counseling"
+            "A) Education reform",
+            "B) Appointment of Lt Governor",
+            "C) Agricultural policy",
+            "D) Health care system"
         ],
         "answer": "B"
     }
