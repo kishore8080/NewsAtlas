@@ -1,101 +1,231 @@
 [
     {
-        "question": "What did South Africa's Ramaphosa jokingly say to PM Modi regarding hosting the G20?",
+        "question": "What significant event was marked by PM Modi at the Ayodhya Ram temple?",
         "options": [
-            "A) It's an easy task",
-            "B) It's a difficult task",
-            "C) It's a rewarding experience",
-            "D) It's a waste of time"
+            "A) Inauguration of the temple",
+            "B) Hoisting of the saffron flag",
+            "C) Groundbreaking ceremony",
+            "D) Opening of a museum"
         ],
         "answer": "B"
     },
     {
-        "question": "Which Indian politician labeled the new labour codes as 'anti-national'?",
+        "question": "Which political leader criticized the Election Commission and BJP over the SIR?",
         "options": [
-            "A) PM Modi",
-            "B) Rahul Gandhi",
-            "C) K Muraleedharan",
-            "D) Rajnath Singh"
-        ],
-        "answer": "C"
-    },
-    {
-        "question": "What did Rajnath Singh suggest about the borders of India?",
-        "options": [
-            "A) They are permanent",
-            "B) They can change",
-            "C) They should be expanded",
-            "D) They are irrelevant"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "What tragic event is Wing Commander Afshan associated with?",
-        "options": [
-            "A) A natural disaster",
-            "B) A military exercise",
-            "C) A plane crash",
-            "D) A terrorist attack"
-        ],
-        "answer": "C"
-    },
-    {
-        "question": "What political issue has caused uproar in Punjab recently?",
-        "options": [
-            "A) New education policy",
-            "B) New Bill to appoint Lt Governor for Chandigarh",
-            "C) Changes in agricultural laws",
-            "D) Implementation of GST"
-        ],
-        "answer": "B"
-    },
-    {
-        "question": "Which country is hosting the G20 summit mentioned in the news?",
-        "options": [
-            "A) India",
-            "B) South Africa",
-            "C) Brazil",
-            "D) Indonesia"
+            "A) Mamata Banerjee",
+            "B) Amit Shah",
+            "C) Rahul Gandhi",
+            "D) Arvind Kejriwal"
         ],
         "answer": "A"
     },
     {
-        "question": "What was K Muraleedharan's main concern regarding the new labour codes?",
+        "question": "What was the concern regarding the Hayli Gubbi volcano eruption in Ethiopia?",
         "options": [
-            "A) Economic growth",
-            "B) Workers' justice",
-            "C) International relations",
-            "D) Environmental impact"
+            "A) Impact on global temperatures",
+            "B) Effect on Delhi's air quality",
+            "C) Potential tsunamis",
+            "D) Displacement of local populations"
         ],
         "answer": "B"
     },
     {
-        "question": "What did Rajnath Singh cite as a reason for the possibility of Sindh returning to India?",
+        "question": "What action did India take in response to an incident involving an Arunachal woman in Shanghai?",
         "options": [
-            "A) Economic ties",
-            "B) Civilizational links",
-            "C) Military agreements",
-            "D) Cultural exchanges"
+            "A) Issued a formal apology",
+            "B) Conducted a diplomatic protest",
+            "C) Sent a delegation to China",
+            "D) Increased trade sanctions"
         ],
         "answer": "B"
     },
     {
-        "question": "What was the emotional context of Wing Commander Afshan's goodbye?",
+        "question": "What was the Supreme Court's ruling regarding the Christian officer's dismissal from the Army?",
         "options": [
-            "A) A wedding",
-            "B) A promotion",
-            "C) A funeral",
-            "D) A retirement"
+            "A) Reinstatement of the officer",
+            "B) Upheld the dismissal",
+            "C) Ordered an inquiry",
+            "D) Mandated training for Army personnel"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What color flag did PM Modi hoist at the Ayodhya Ram temple?",
+        "options": [
+            "A) White",
+            "B) Green",
+            "C) Blue",
+            "D) Saffron"
+        ],
+        "answer": "D"
+    },
+    {
+        "question": "Which publication reported on PM Modi hoisting the saffron flag at the Ayodhya Ram temple?",
+        "options": [
+            "A) The Times of India",
+            "B) The Hindu",
+            "C) Hindustan Times",
+            "D) India Today"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What condition did Mamata Banerjee set for her support on the survey?",
+        "options": [
+            "A) Deletion of the central government",
+            "B) Increase in local funding",
+            "C) Appointment of a new Chief Minister",
+            "D) Change in election dates"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "Which volcano's ash was reported to have no impact on Delhi's air quality?",
+        "options": [
+            "A) Mount Etna",
+            "B) Hayli Gubbi",
+            "C) Mount St. Helens",
+            "D) Kilauea"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What was the nature of the incident involving the Arunachal woman in Shanghai?",
+        "options": [
+            "A) Arrest",
+            "B) Deportation",
+            "C) Kidnapping",
+            "D) Assault"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "What did the Supreme Court state about the Army's secular nature in relation to the dismissed officer?",
+        "options": [
+            "A) It should be more inclusive",
+            "B) It is not a secular institution",
+            "C) It must uphold secular values",
+            "D) It can dismiss based on religion"
         ],
         "answer": "C"
     },
     {
-        "question": "What is the primary focus of the new Bill causing political uproar in Punjab?",
+        "question": "Which Indian state does the woman detained in Shanghai belong to?",
         "options": [
-            "A) Education reform",
-            "B) Appointment of Lt Governor",
-            "C) Agricultural policy",
-            "D) Health care system"
+            "A) Assam",
+            "B) Arunachal Pradesh",
+            "C) West Bengal",
+            "D) Sikkim"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What was the primary concern of Mamata Banerjee regarding the Election Commission?",
+        "options": [
+            "A) Election fairness",
+            "B) Voter turnout",
+            "C) Political bias",
+            "D) Funding issues"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "What does the term 'SIR' refer to in the context of Mamata Banerjee's criticism?",
+        "options": [
+            "A) State Information Report",
+            "B) Special Investigation Report",
+            "C) Survey of India Report",
+            "D) Social Impact Report"
+        ],
+        "answer": "C"
+    },
+    {
+        "question": "Which organization provided updates on the Hayli Gubbi volcano eruption?",
+        "options": [
+            "A) NASA",
+            "B) IMD",
+            "C) WHO",
+            "D) UN"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What was the response of the Indian government to the detention of the Arunachal woman?",
+        "options": [
+            "A) Diplomatic negotiations",
+            "B) Public protests",
+            "C) Economic sanctions",
+            "D) Military intervention"
+        ],
+        "answer": "A"
+    },
+    {
+        "question": "What was the Supreme Court's rationale for upholding the officer's dismissal?",
+        "options": [
+            "A) Lack of evidence",
+            "B) Violation of Army regulations",
+            "C) Political influence",
+            "D) Public safety concerns"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What type of flag is associated with the Ayodhya Ram temple?",
+        "options": [
+            "A) National flag",
+            "B) Religious flag",
+            "C) State flag",
+            "D) International flag"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Which news outlet reported on the protests following the woman's detention in Shanghai?",
+        "options": [
+            "A) The Hindu",
+            "B) Hindustan Times",
+            "C) India Today",
+            "D) The Indian Express"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What is the main theme of the articles referenced in the text?",
+        "options": [
+            "A) Environmental issues",
+            "B) Political controversies",
+            "C) Economic policies",
+            "D) Social reforms"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "What action did PM Modi take to symbolize the completion of the Ram temple's construction?",
+        "options": [
+            "A) Launched a website",
+            "B) Hoisted a flag",
+            "C) Gave a speech",
+            "D) Opened the temple to public"
+        ],
+        "answer": "B"
+    },
+    {
+        "question": "Which event is linked to Mamata Banerjee's criticism of the Election Commission?",
+        "options": [
+            "A) Recent elections",
+            "B) Voter registration issues",
+            "C) Political rallies",
+            "D) Survey-related matters"
+        ],
+        "answer": "D"
+    },
+    {
+        "question": "What was the Supreme Court's decision regarding the Christian officer's case?",
+        "options": [
+            "A) Reversal of the decision",
+            "B) Upheld the dismissal",
+            "C) Ordered a retrial",
+            "D) Mandated compensation"
         ],
         "answer": "B"
     }

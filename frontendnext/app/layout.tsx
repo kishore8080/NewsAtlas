@@ -1,23 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
-import Navigation from "../components/Navigation";
+import Sidebar from "@/components/Sidebar";
+import AIAssistant from "@/components/AIAssistant";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "EazyPrepAI - AI-Powered UPSC Preparation Platform",
   description: "Your complete AI-driven companion for UPSC success. Get personalized study planning, smart analytics, AI mentorship, and more.",
 };
+
 
 export default function RootLayout({
   children,
@@ -27,11 +19,14 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <Navigation />
-          {children}
+        <body className="antialiased bg-[var(--background)]">
+          <div className="flex min-h-screen">
+            <Sidebar />
+            <main className="flex-1 ml-64 mr-80 p-8">
+              {children}
+            </main>
+            <AIAssistant />
+          </div>
         </body>
       </html>
     </ClerkProvider>

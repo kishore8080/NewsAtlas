@@ -22,5 +22,5 @@ langchain
 langchain-openai
 python-dotenv
 requests
-langchain_core.prompts
+
 

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import quizBundle from "@/json-output-files/upsc_mcqs.json";
 
-export async function GET(_request: NextRequest) {
+
+export async function GET() {
   try {
     // Try multiple possible paths for the JSON file
     const possiblePaths = [
@@ -15,8 +15,7 @@ export async function GET(_request: NextRequest) {
       process.env.QUIZ_JSON_PATH || "",
     ].filter(Boolean);
 
-    let quiz = null;
-    let jsonPath = null;
+    let jsonPath: string | null = null;
 
     // Try each path until we find the file
     for (const jsonPathAttempt of possiblePaths) {
@@ -26,29 +25,30 @@ export async function GET(_request: NextRequest) {
       }
     }
 
-    if (!jsonPath) {
-      // Fallback to bundled JSON (ensures availability in Vercel)
-      quiz = quizBundle;
-    } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let quizData: any[] = [];
+
+    if (jsonPath) {
       const fileContent = fs.readFileSync(jsonPath, "utf-8");
-      quiz = JSON.parse(fileContent);
+      try {
+        quizData = JSON.parse(fileContent);
+      } catch (e) {
+        console.error("Failed to parse quiz JSON:", e);
+      }
     }
 
-    // Normalize structure (the JSON might already have a `quiz` key)
-    const quizData = Array.isArray(quiz)
-      ? quiz
-      : Array.isArray(quiz.quiz)
-        ? quiz.quiz
-        : quiz?.data ?? [];
-
-    if (!Array.isArray(quizData) || quizData.length === 0) {
+    if (!quizData || quizData.length === 0) {
       return NextResponse.json(
-        { quiz: [], message: "Quiz file is empty or invalid format" },
-        { status: 200 }
+        { error: "Quiz data not found or empty" },
+        { status: 404 }
       );
     }
 
-    return NextResponse.json({ quiz: quizData });
+    // Shuffle and select 5 random questions
+    const shuffled = quizData.sort(() => 0.5 - Math.random());
+    const selectedQuestions = shuffled.slice(0, 5);
+
+    return NextResponse.json({ quiz: selectedQuestions });
   } catch (error) {
     console.error("Error loading quiz:", error);
     return NextResponse.json(
@@ -59,7 +59,7 @@ export async function GET(_request: NextRequest) {
 }
 
 // Handle CORS
-export async function OPTIONS(_request: NextRequest) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {

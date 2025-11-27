@@ -17,7 +17,7 @@ def generate_mcqs(news_text: str):
 
     prompt = ChatPromptTemplate.from_template("""
     You are an assistant that generates multiple-choice questions.
-    Based on the following text, generate 10 MCQs That can be asked in UPSC exams.
+    Based on the following text, generate 25 MCQs That can be asked in UPSC exams.
     Each MCQ should have:
     - A question
     - Four options (A, B, C, D)

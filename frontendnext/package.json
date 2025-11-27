@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.35.2",
+    "lucide-react": "^0.555.0",
     "next": "15.5.3",
     "react": "19.1.0",
     "react-dom": "19.1.0"
