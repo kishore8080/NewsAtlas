@@ -1,0 +1,72 @@
+[
+    {
+        "id": "news-001",
+        "title": "Supreme Court Ruling on Article 370",
+        "description": "SC upholds abrogation of Article 370, validates reorganization of J&K",
+        "content": "The Supreme Court of India has upheld the Centre's decision to abrogate Article 370 and reorganize Jammu and Kashmir into two Union Territories. The five-judge Constitution Bench, led by Chief Justice of India, delivered the unanimous verdict affirming the constitutional validity of the government's actions taken in August 2019.",
+        "category": "Polity",
+        "date": "2024-11-15",
+        "source": "The Hindu",
+        "relevance": [
+            "Polity",
+            "Governance",
+            "Current Affairs"
+        ]
+    },
+    {
+        "id": "news-002",
+        "title": "India's GDP Growth Projections Revised",
+        "description": "RBI revises GDP growth forecast for FY 2024-25",
+        "content": "The Reserve Bank of India has revised India's GDP growth projection for the fiscal year 2024-25 to 7.2%, citing robust domestic demand and improved agricultural output. The central bank also maintained the repo rate at 6.5% to balance growth and inflation concerns.",
+        "category": "Economy",
+        "date": "2024-11-14",
+        "source": "Economic Times",
+        "relevance": [
+            "Economy",
+            "Banking",
+            "Current Affairs"
+        ]
+    },
+    {
+        "id": "news-003",
+        "title": "COP29 Climate Summit Outcomes",
+        "description": "India commits to enhanced renewable energy targets",
+        "content": "At the COP29 climate summit, India announced ambitious plans to achieve 500 GW of renewable energy capacity by 2030. The commitment includes significant investments in solar and wind energy infrastructure, positioning India as a global leader in clean energy transition.",
+        "category": "Environment",
+        "date": "2024-11-13",
+        "source": "Indian Express",
+        "relevance": [
+            "Environment",
+            "International Relations",
+            "Current Affairs"
+        ]
+    },
+    {
+        "id": "news-004",
+        "title": "Digital India Initiative Expansion",
+        "description": "Government launches new digital literacy program",
+        "content": "The Ministry of Electronics and IT has launched a comprehensive digital literacy program targeting rural areas. The initiative aims to train 10 million citizens in digital skills over the next two years, focusing on digital payments, online governance services, and cybersecurity awareness.",
+        "category": "Science & Technology",
+        "date": "2024-11-12",
+        "source": "PIB",
+        "relevance": [
+            "Science & Technology",
+            "Governance",
+            "Current Affairs"
+        ]
+    },
+    {
+        "id": "news-005",
+        "title": "India-US Defense Partnership Strengthened",
+        "description": "New defense cooperation agreement signed",
+        "content": "India and the United States have signed a landmark defense cooperation agreement focusing on joint military exercises, technology transfer, and intelligence sharing. The agreement is expected to enhance strategic partnership in the Indo-Pacific region.",
+        "category": "International Relations",
+        "date": "2024-11-11",
+        "source": "Times of India",
+        "relevance": [
+            "International Relations",
+            "Security",
+            "Current Affairs"
+        ]
+    }
+]

@@ -1,0 +1,132 @@
+[
+    {
+        "id": "q-001",
+        "question": "Which article of the Indian Constitution was abrogated in August 2019?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Article 356"
+            },
+            {
+                "id": "b",
+                "text": "Article 370"
+            },
+            {
+                "id": "c",
+                "text": "Article 35A"
+            },
+            {
+                "id": "d",
+                "text": "Article 371"
+            }
+        ],
+        "correct_answer": "b",
+        "explanation": "Article 370 granted special autonomous status to Jammu and Kashmir. It was abrogated by the Government of India in August 2019, and the state was reorganized into two Union Territories.",
+        "category": "Polity",
+        "difficulty": "medium"
+    },
+    {
+        "id": "q-002",
+        "question": "What is the current repo rate maintained by the Reserve Bank of India?",
+        "options": [
+            {
+                "id": "a",
+                "text": "5.5%"
+            },
+            {
+                "id": "b",
+                "text": "6.0%"
+            },
+            {
+                "id": "c",
+                "text": "6.5%"
+            },
+            {
+                "id": "d",
+                "text": "7.0%"
+            }
+        ],
+        "correct_answer": "c",
+        "explanation": "The Reserve Bank of India has maintained the repo rate at 6.5% to balance economic growth and inflation concerns. The repo rate is the rate at which RBI lends money to commercial banks.",
+        "category": "Economy",
+        "difficulty": "easy"
+    },
+    {
+        "id": "q-003",
+        "question": "What is India's renewable energy capacity target by 2030?",
+        "options": [
+            {
+                "id": "a",
+                "text": "250 GW"
+            },
+            {
+                "id": "b",
+                "text": "350 GW"
+            },
+            {
+                "id": "c",
+                "text": "450 GW"
+            },
+            {
+                "id": "d",
+                "text": "500 GW"
+            }
+        ],
+        "correct_answer": "d",
+        "explanation": "India has committed to achieving 500 GW of renewable energy capacity by 2030, as announced at the COP29 climate summit. This includes significant investments in solar and wind energy infrastructure.",
+        "category": "Environment",
+        "difficulty": "medium"
+    },
+    {
+        "id": "q-004",
+        "question": "Which ministry launched the new digital literacy program targeting rural areas?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Ministry of Rural Development"
+            },
+            {
+                "id": "b",
+                "text": "Ministry of Electronics and IT"
+            },
+            {
+                "id": "c",
+                "text": "Ministry of Education"
+            },
+            {
+                "id": "d",
+                "text": "Ministry of Skill Development"
+            }
+        ],
+        "correct_answer": "b",
+        "explanation": "The Ministry of Electronics and Information Technology (MeitY) launched the comprehensive digital literacy program. The initiative aims to train 10 million citizens in digital skills over the next two years.",
+        "category": "Science & Technology",
+        "difficulty": "easy"
+    },
+    {
+        "id": "q-005",
+        "question": "The recent India-US defense cooperation agreement primarily focuses on which region?",
+        "options": [
+            {
+                "id": "a",
+                "text": "Middle East"
+            },
+            {
+                "id": "b",
+                "text": "Indo-Pacific"
+            },
+            {
+                "id": "c",
+                "text": "Central Asia"
+            },
+            {
+                "id": "d",
+                "text": "Arctic"
+            }
+        ],
+        "correct_answer": "b",
+        "explanation": "The India-US defense cooperation agreement focuses on the Indo-Pacific region, enhancing strategic partnership through joint military exercises, technology transfer, and intelligence sharing.",
+        "category": "International Relations",
+        "difficulty": "medium"
+    }
+]
