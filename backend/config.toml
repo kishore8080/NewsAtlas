@@ -1,0 +1,2 @@
+[cors]
+allow_origin_regex = "https://.*\\.vercel\\.app"
