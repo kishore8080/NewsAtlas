@@ -1,2 +1,5 @@
 [cors]
 allow_origin_regex = "https://.*\\.vercel\\.app"
+
+[storage]
+bucket_name = "eazyprep-data"

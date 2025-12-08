@@ -1,11 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, BackgroundTasks
 from typing import List, Optional
 from pydantic import BaseModel
-from datetime import datetime
-import json
-import os
+from services.news_service import NewsService
 
 router = APIRouter()
+news_service = NewsService()
 
 # Pydantic models
 class NewsItem(BaseModel):
@@ -16,20 +15,11 @@ class NewsItem(BaseModel):
     category: str
     date: str
     source: str
-    relevance: List[str]  # UPSC topics like "Polity", "Economy", etc.
+    relevance: List[str]
 
 class NewsResponse(BaseModel):
     news: List[NewsItem]
     total: int
-
-# Load news data
-def load_news_data():
-    data_path = os.path.join(os.path.dirname(__file__), "..", "data", "news.json")
-    try:
-        with open(data_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return []
 
 @router.get("/news", response_model=NewsResponse)
 async def get_all_news(
@@ -38,11 +28,8 @@ async def get_all_news(
 ):
     """
     Get all current affairs news.
-    
-    - **category**: Filter by category (optional)
-    - **limit**: Number of items to return (default: 10)
     """
-    news_data = load_news_data()
+    news_data = news_service.load_news()
     
     # Filter by category if provided
     if category:
@@ -61,10 +48,29 @@ async def get_news_by_id(news_id: str):
     """
     Get a specific news item by ID.
     """
-    news_data = load_news_data()
+    news_data = news_service.load_news()
     
     for item in news_data:
         if item.get("id") == news_id:
             return item
     
     raise HTTPException(status_code=404, detail="News item not found")
+
+@router.post("/news/refresh")
+async def refresh_news(background_tasks: BackgroundTasks):
+    """
+    Trigger a background task to fetch new news from RSS feeds,
+    process them with AI, and update the cache.
+    """
+    def _refresh_task():
+        print("Starting news refresh...")
+        raw_news = news_service.fetch_rss_feeds()
+        processed_news = news_service.process_news_with_ai(raw_news)
+        if processed_news:
+            news_service.save_news(processed_news)
+            print("News refresh completed successfully.")
+        else:
+            print("News refresh failed or returned no data.")
+
+    background_tasks.add_task(_refresh_task)
+    return {"message": "News refresh started in background"}
