@@ -23,7 +23,13 @@ RSS_FEEDS = [
 
 class NewsService:
     def __init__(self):
-        self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        api_key = os.getenv("OPENAI_API_KEY")
+        if api_key:
+            self.client = OpenAI(api_key=api_key)
+        else:
+            print("Warning: OPENAI_API_KEY not found. AI features will be disabled.")
+            self.client = None
+
         try:
             self.storage_client = storage.Client()
             self.bucket = self.storage_client.bucket(BUCKET_NAME)
@@ -63,6 +69,10 @@ class NewsService:
         if not raw_news:
             return []
 
+        if not self.client:
+            print("Error: OpenAI client not initialized.")
+            return []
+
         prompt = f"""
         You are an expert UPSC exam content curator.
         Process the following raw news items and select the top 5 most relevant for UPSC Civil Services preparation.
@@ -97,7 +107,18 @@ class NewsService:
             )
             content = response.choices[0].message.content
             parsed = json.loads(content)
-            return parsed.get("news", parsed) if isinstance(parsed, dict) else parsed
+            if isinstance(parsed, dict):
+                if "news" in parsed:
+                    return parsed["news"]
+                elif "items" in parsed:
+                    return parsed["items"]
+                else:
+                    # If it's a single object or unknown dict structure, wrap in list
+                    return [parsed]
+            elif isinstance(parsed, list):
+                return parsed
+            else:
+                return []
         except Exception as e:
             print(f"Error processing with AI: {e}")
             return []
@@ -124,7 +145,10 @@ class NewsService:
             try:
                 blob = self.bucket.blob("news.json")
                 data = blob.download_as_text()
-                return json.loads(data)
+                parsed = json.loads(data)
+                if isinstance(parsed, dict):
+                    return parsed.get("news", [parsed])
+                return parsed if isinstance(parsed, list) else []
             except NotFound:
                 print("news.json not found in GCS")
             except Exception as e:
@@ -134,6 +158,9 @@ class NewsService:
         local_path = os.path.join(os.path.dirname(__file__), "..", "data", "news.json")
         if os.path.exists(local_path):
             with open(local_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                parsed = json.load(f)
+                if isinstance(parsed, dict):
+                    return parsed.get("news", [parsed])
+                return parsed if isinstance(parsed, list) else []
         
         return []
