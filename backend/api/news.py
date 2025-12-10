@@ -8,14 +8,14 @@ news_service = NewsService()
 
 # Pydantic models
 class NewsItem(BaseModel):
-    id: str
-    title: str
-    description: str
-    content: str
-    category: str
-    date: str
-    source: str
-    relevance: List[str]
+    id: Optional[str] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    content: Optional[str] = None
+    category: Optional[str] = None
+    date: Optional[str] = None
+    source: Optional[str] = None
+    relevance: Optional[List[str]] = None
 
 class NewsResponse(BaseModel):
     news: List[NewsItem]
