@@ -3,7 +3,7 @@ import os
 import tomllib
 import requests
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 from openai import OpenAI
@@ -39,10 +39,38 @@ class NewsService:
             print(f"Warning: GCS initialization failed: {e}")
             self.bucket = None
 
-    def get_gcs_path(self, date_str: Optional[str] = None) -> str:
+    def get_current_slot(self) -> int:
         """
-        Generates GCS path: news-data/Month-Year/dd-mm-yyyy.json
-        date_str format: dd-mm-yyyy
+        Calculates the current 3-hour slot (1-8) based on IST time.
+        Starts at 02:00 AM.
+        Slot 1: 02:00 - 04:59
+        Slot 2: 05:00 - 07:59
+        ...
+        """
+        now = datetime.now(IST)
+        hour = now.hour
+        
+        # If before 2 AM, it technically belongs to the previous day's last slot cycle,
+        # but for simplicity in this "daily" context, we can treat 00:00-01:59 as late night updates 
+        # or map them to Slot 8 of the *previous* day. 
+        # However, the user requirement says "from 2AM". 
+        # Let's map 00:00-01:59 to Slot 8 of the *current* day (effectively late night coverage) 
+        # OR strictly follow the 2AM start.
+        # Formula: (Hour - 2) // 3 + 1
+        
+        if hour < 2:
+            # 00:00 to 01:59 -> treat as part of previous day's cycle or just Slot 1?
+            # Let's assume it's Slot 1 of the new day for simplicity if we want to capture it,
+            # OR better, if the scheduler runs at 2AM, that's Slot 1.
+            return 1
+            
+        slot = ((hour - 2) // 3) + 1
+        return max(1, min(8, slot))
+
+    def get_gcs_path(self, date_str: Optional[str] = None, slot: Optional[int] = None) -> str:
+        """
+        Generates GCS path: news-data/Month-Year/dd-mm-yyyy-data-{slot}.json
+        If slot is None, it returns the base path prefix (without slot).
         """
         if not date_str:
             now = datetime.now(IST)
@@ -51,9 +79,13 @@ class NewsService:
         try:
             dt = datetime.strptime(date_str, "%d-%m-%Y")
             month_year = dt.strftime("%B-%Y") # e.g., January-2025
-            return f"news-data/{month_year}/{date_str}.json"
+            
+            if slot is not None:
+                return f"news-data/{month_year}/{date_str}-data-{slot:02d}.json"
+            else:
+                # Used for listing/searching
+                return f"news-data/{month_year}/{date_str}-data-"
         except ValueError:
-            # Fallback for invalid date format
             return f"news-data/misc/{date_str}.json"
 
     def fetch_rss_feeds(self) -> List[Dict[str, Any]]:
@@ -131,13 +163,15 @@ class NewsService:
             )
             content = response.choices[0].message.content
             parsed = json.loads(content)
+            
+            # Handle various AI response structures
             if isinstance(parsed, dict):
-                if "news" in parsed:
-                    return parsed["news"]
-                elif "items" in parsed:
-                    return parsed["items"]
-                else:
+                for key in ["news", "items", "news_articles", "result", "articles", "response"]:
+                    if key in parsed and isinstance(parsed[key], list):
+                        return parsed[key]
+                if "title" in parsed:
                     return [parsed]
+                return []
             elif isinstance(parsed, list):
                 return parsed
             else:
@@ -146,22 +180,62 @@ class NewsService:
             print(f"Error processing with AI: {e}")
             return []
 
+    def _validate_and_clean_news(self, news_list: List[Any]) -> List[Dict[str, Any]]:
+        cleaned = []
+        for item in news_list:
+            if isinstance(item, dict):
+                found_nested = False
+                for key in ["news", "items", "news_articles", "result", "articles"]:
+                    if key in item and isinstance(item[key], list):
+                        cleaned.extend(self._validate_and_clean_news(item[key]))
+                        found_nested = True
+                        break
+                
+                if not found_nested:
+                    if item.get("title") and item.get("description"):
+                        cleaned.append(item)
+            elif isinstance(item, list):
+                cleaned.extend(self._validate_and_clean_news(item))
+        return cleaned
+
     def refresh_daily_news(self):
         """
-        Fetches new news, deduplicates against today's existing news,
-        processes new items with AI, merges, sorts, and saves.
+        Fetches new news, deduplicates against ALL previous slots of today,
+        processes new items, assigns sequential IDs, and saves to CURRENT slot.
         """
-        print("Starting daily news refresh...")
+        print("Starting slotted news refresh...")
         
-        # 1. Fetch RSS
+        today_str = datetime.now(IST).strftime("%d-%m-%Y")
+        current_slot = self.get_current_slot()
+        print(f"Current Slot: {current_slot} for {today_str}")
+
+        # 1. Load ALL news from previous slots (1 to current_slot-1)
+        #    Also load current slot if it exists (to overwrite/update it)
+        all_existing_news = []
+        for slot in range(1, 9): # Check all possible slots
+            slot_news = self.load_news_from_slot(today_str, slot)
+            all_existing_news.extend(slot_news)
+        
+        # Clean existing news
+        all_existing_news = self._validate_and_clean_news(all_existing_news)
+        existing_titles = {item.get('title') for item in all_existing_news if item.get('title')}
+        
+        # Calculate next ID start
+        # Assuming IDs are purely numeric or we just count items.
+        # User requested range: Slot 1 (1-5), Slot 2 (6-10).
+        # So we just need the total count of items *before* this batch.
+        # BUT, we are overwriting the current slot. So we should count items from slots 1 to current_slot-1.
+        
+        previous_slots_count = 0
+        for slot in range(1, current_slot):
+            slot_news = self.load_news_from_slot(today_str, slot)
+            previous_slots_count += len(self._validate_and_clean_news(slot_news))
+            
+        print(f"Items in previous slots: {previous_slots_count}")
+
+        # 2. Fetch RSS
         raw_news = self.fetch_rss_feeds()
         print(f"Fetched {len(raw_news)} raw items.")
-        
-        # 2. Load today's existing news
-        today_str = datetime.now(IST).strftime("%d-%m-%Y")
-        existing_news = self.load_news(date=today_str)
-        existing_titles = {item.get('title') for item in existing_news if item.get('title')}
-        print(f"Loaded {len(existing_news)} existing items for {today_str}.")
         
         # 3. Filter duplicates
         new_raw_items = [item for item in raw_news if item['title'] not in existing_titles]
@@ -177,21 +251,24 @@ class NewsService:
             print("AI processing returned no data.")
             return
             
-        # 5. Merge
-        full_list = existing_news + processed_news
-        
+        processed_news = self._validate_and_clean_news(processed_news)
+
+        # 5. Assign Sequential IDs
+        # Start ID = previous_slots_count + 1
+        for i, item in enumerate(processed_news):
+            item['id'] = str(previous_slots_count + i + 1)
+
         # 6. Sort by Importance (High > Medium > Low)
         importance_map = {"High": 3, "Medium": 2, "Low": 1}
-        full_list.sort(key=lambda x: importance_map.get(x.get("importance", "Low"), 0), reverse=True)
+        processed_news.sort(key=lambda x: importance_map.get(x.get("importance", "Low"), 0), reverse=True)
         
-        # 7. Save
-        self.save_news(full_list, date=today_str)
-        print(f"Saved {len(full_list)} items to {today_str}.")
+        # 7. Save to CURRENT slot (Overwriting if exists)
+        self.save_news_to_slot(processed_news, today_str, current_slot)
+        print(f"Saved {len(processed_news)} items to {today_str} Slot {current_slot}.")
 
-    def save_news(self, news_data: List[Dict[str, Any]], date: Optional[str] = None):
-        gcs_path = self.get_gcs_path(date)
+    def save_news_to_slot(self, news_data: List[Dict[str, Any]], date_str: str, slot: int):
+        gcs_path = self.get_gcs_path(date_str, slot)
         
-        # 1. Save to GCS
         if self.bucket:
             try:
                 blob = self.bucket.blob(gcs_path)
@@ -200,10 +277,8 @@ class NewsService:
             except Exception as e:
                 print(f"Error uploading to GCS: {e}")
 
-    def load_news(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
-        gcs_path = self.get_gcs_path(date)
-        
-        # 1. Try GCS
+    def load_news_from_slot(self, date_str: str, slot: int) -> List[Dict[str, Any]]:
+        gcs_path = self.get_gcs_path(date_str, slot)
         if self.bucket:
             try:
                 blob = self.bucket.blob(gcs_path)
@@ -213,8 +288,24 @@ class NewsService:
                     return parsed.get("news", [parsed])
                 return parsed if isinstance(parsed, list) else []
             except NotFound:
-                print(f"News file not found in GCS: {gcs_path}")
+                return []
             except Exception as e:
-                print(f"Error reading from GCS: {e}")
-        
+                print(f"Error reading slot {slot}: {e}")
+                return []
         return []
+
+    def load_news(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        Aggregates news from ALL slots for the given date.
+        """
+        if not date:
+            now = datetime.now(IST)
+            date = now.strftime("%d-%m-%Y")
+            
+        all_news = []
+        # Try loading slots 1 to 8
+        for slot in range(1, 9):
+            slot_news = self.load_news_from_slot(date, slot)
+            all_news.extend(self._validate_and_clean_news(slot_news))
+            
+        return all_news

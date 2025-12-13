@@ -39,7 +39,7 @@ async def root():
     return {
         "message": "EazyPrepAI Backend API",
         "status": "running",
-        "version": "1.0.6"
+        "version": "1.0.8"
     }
 
 @app.get("/health")
