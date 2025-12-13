@@ -221,37 +221,34 @@ class NewsService:
         existing_titles = {item.get('title') for item in all_existing_news if item.get('title')}
         
         # Calculate next ID start
-        # Assuming IDs are purely numeric or we just count items.
-        # User requested range: Slot 1 (1-5), Slot 2 (6-10).
-        # So we just need the total count of items *before* this batch.
-        # BUT, we are overwriting the current slot. So we should count items from slots 1 to current_slot-1.
-        
         previous_slots_count = 0
         for slot in range(1, current_slot):
             slot_news = self.load_news_from_slot(today_str, slot)
             previous_slots_count += len(self._validate_and_clean_news(slot_news))
             
-        print(f"Items in previous slots: {previous_slots_count}")
+        print(f"Items in previous slots (1-{current_slot-1}): {previous_slots_count}")
 
         # 2. Fetch RSS
         raw_news = self.fetch_rss_feeds()
-        print(f"Fetched {len(raw_news)} raw items.")
+        print(f"Fetched {len(raw_news)} raw items from RSS.")
         
         # 3. Filter duplicates
         new_raw_items = [item for item in raw_news if item['title'] not in existing_titles]
-        print(f"Found {len(new_raw_items)} new items to process.")
+        print(f"Found {len(new_raw_items)} new items to process (after deduplication).")
         
         if not new_raw_items:
-            print("No new news to process.")
+            print("No new news to process. Exiting refresh.")
             return
 
         # 4. Process with AI
+        print(f"Sending {len(new_raw_items)} items to OpenAI...")
         processed_news = self.process_news_with_ai(new_raw_items)
         if not processed_news:
-            print("AI processing returned no data.")
+            print("AI processing returned no data (or empty list).")
             return
             
         processed_news = self._validate_and_clean_news(processed_news)
+        print(f"AI returned {len(processed_news)} valid items.")
 
         # 5. Assign Sequential IDs
         # Start ID = previous_slots_count + 1
@@ -264,10 +261,11 @@ class NewsService:
         
         # 7. Save to CURRENT slot (Overwriting if exists)
         self.save_news_to_slot(processed_news, today_str, current_slot)
-        print(f"Saved {len(processed_news)} items to {today_str} Slot {current_slot}.")
+        print(f"SUCCESS: Saved {len(processed_news)} items to {today_str} Slot {current_slot}.")
 
     def save_news_to_slot(self, news_data: List[Dict[str, Any]], date_str: str, slot: int):
         gcs_path = self.get_gcs_path(date_str, slot)
+        print(f"Attempting to upload to GCS: {gcs_path}")
         
         if self.bucket:
             try:
@@ -275,7 +273,9 @@ class NewsService:
                 blob.upload_from_string(json.dumps(news_data), content_type="application/json")
                 print(f"Uploaded news to GCS: {gcs_path}")
             except Exception as e:
-                print(f"Error uploading to GCS: {e}")
+                print(f"CRITICAL ERROR uploading to GCS: {e}")
+        else:
+            print("CRITICAL ERROR: GCS Bucket not initialized.")
 
     def load_news_from_slot(self, date_str: str, slot: int) -> List[Dict[str, Any]]:
         gcs_path = self.get_gcs_path(date_str, slot)

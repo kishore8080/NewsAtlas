@@ -67,9 +67,13 @@ async def refresh_news(background_tasks: BackgroundTasks):
     """
     def _refresh_task():
         try:
+            print("Background task started: refresh_daily_news")
             news_service.refresh_daily_news()
+            print("Background task completed successfully")
         except Exception as e:
-            print(f"Error during news refresh: {e}")
+            import traceback
+            print(f"CRITICAL ERROR during news refresh: {e}")
+            traceback.print_exc()
 
     background_tasks.add_task(_refresh_task)
     return {"message": "News refresh started in background"}
