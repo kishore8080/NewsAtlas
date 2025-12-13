@@ -2,8 +2,9 @@ import json
 import os
 import tomllib
 import requests
+import pytz
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 from openai import OpenAI
 from google.cloud import storage
@@ -20,6 +21,7 @@ RSS_FEEDS = [
     "https://www.thehindu.com/news/international/feeder/default.rss",
     "https://indianexpress.com/section/india/feed/",
 ]
+IST = pytz.timezone('Asia/Kolkata')
 
 class NewsService:
     def __init__(self):
@@ -37,6 +39,23 @@ class NewsService:
             print(f"Warning: GCS initialization failed: {e}")
             self.bucket = None
 
+    def get_gcs_path(self, date_str: Optional[str] = None) -> str:
+        """
+        Generates GCS path: news-data/Month-Year/dd-mm-yyyy.json
+        date_str format: dd-mm-yyyy
+        """
+        if not date_str:
+            now = datetime.now(IST)
+            date_str = now.strftime("%d-%m-%Y")
+        
+        try:
+            dt = datetime.strptime(date_str, "%d-%m-%Y")
+            month_year = dt.strftime("%B-%Y") # e.g., January-2025
+            return f"news-data/{month_year}/{date_str}.json"
+        except ValueError:
+            # Fallback for invalid date format
+            return f"news-data/misc/{date_str}.json"
+
     def fetch_rss_feeds(self) -> List[Dict[str, Any]]:
         raw_news = []
         for feed_url in RSS_FEEDS:
@@ -49,7 +68,7 @@ class NewsService:
                     title = item.title.text if item.title else ""
                     link = item.link.text if item.link else ""
                     description = item.description.text if item.description else ""
-                    pub_date = item.pubDate.text if item.pubDate else str(datetime.now())
+                    pub_date = item.pubDate.text if item.pubDate else str(datetime.now(IST))
                     
                     raw_news.append({
                         "title": title,
@@ -75,7 +94,7 @@ class NewsService:
 
         prompt = f"""
         You are an expert UPSC exam content curator.
-        Process the following raw news items and select the top 5 most relevant for UPSC Civil Services preparation.
+        Process the following raw news items and select the most relevant ones for UPSC Civil Services preparation.
         
         Raw News:
         {json.dumps(raw_news)}
@@ -91,11 +110,16 @@ class NewsService:
                 "category": "One of: Polity, Economy, Environment, Science & Technology, International Relations, History, Geography, Social Issues",
                 "date": "YYYY-MM-DD",
                 "source": "Source Name",
-                "relevance": ["Tag1", "Tag2", "Tag3"]
+                "relevance": ["Tag1", "Tag2", "Tag3"],
+                "key_points": ["Point 1", "Point 2", "Point 3"],
+                "importance": "High" | "Medium" | "Low"
             }}
         ]
         
-        Ensure the content is high-quality and educational.
+        Guidelines:
+        - "key_points": Extract 3-4 bullet points suitable for notes.
+        - "importance": Assign based on UPSC relevance. High = Critical for exam.
+        - Ensure content is educational and neutral.
         """
 
         try:
@@ -113,7 +137,6 @@ class NewsService:
                 elif "items" in parsed:
                     return parsed["items"]
                 else:
-                    # If it's a single object or unknown dict structure, wrap in list
                     return [parsed]
             elif isinstance(parsed, list):
                 return parsed
@@ -123,44 +146,75 @@ class NewsService:
             print(f"Error processing with AI: {e}")
             return []
 
-    def save_news(self, news_data: List[Dict[str, Any]]):
-        # 1. Save locally (backup/dev)
-        local_path = os.path.join(os.path.dirname(__file__), "..", "data", "news.json")
-        os.makedirs(os.path.dirname(local_path), exist_ok=True)
-        with open(local_path, "w", encoding="utf-8") as f:
-            json.dump(news_data, f, indent=4)
+    def refresh_daily_news(self):
+        """
+        Fetches new news, deduplicates against today's existing news,
+        processes new items with AI, merges, sorts, and saves.
+        """
+        print("Starting daily news refresh...")
+        
+        # 1. Fetch RSS
+        raw_news = self.fetch_rss_feeds()
+        print(f"Fetched {len(raw_news)} raw items.")
+        
+        # 2. Load today's existing news
+        today_str = datetime.now(IST).strftime("%d-%m-%Y")
+        existing_news = self.load_news(date=today_str)
+        existing_titles = {item.get('title') for item in existing_news if item.get('title')}
+        print(f"Loaded {len(existing_news)} existing items for {today_str}.")
+        
+        # 3. Filter duplicates
+        new_raw_items = [item for item in raw_news if item['title'] not in existing_titles]
+        print(f"Found {len(new_raw_items)} new items to process.")
+        
+        if not new_raw_items:
+            print("No new news to process.")
+            return
 
-        # 2. Save to GCS
+        # 4. Process with AI
+        processed_news = self.process_news_with_ai(new_raw_items)
+        if not processed_news:
+            print("AI processing returned no data.")
+            return
+            
+        # 5. Merge
+        full_list = existing_news + processed_news
+        
+        # 6. Sort by Importance (High > Medium > Low)
+        importance_map = {"High": 3, "Medium": 2, "Low": 1}
+        full_list.sort(key=lambda x: importance_map.get(x.get("importance", "Low"), 0), reverse=True)
+        
+        # 7. Save
+        self.save_news(full_list, date=today_str)
+        print(f"Saved {len(full_list)} items to {today_str}.")
+
+    def save_news(self, news_data: List[Dict[str, Any]], date: Optional[str] = None):
+        gcs_path = self.get_gcs_path(date)
+        
+        # 1. Save to GCS
         if self.bucket:
             try:
-                blob = self.bucket.blob("news.json")
+                blob = self.bucket.blob(gcs_path)
                 blob.upload_from_string(json.dumps(news_data), content_type="application/json")
-                print("Uploaded news.json to GCS")
+                print(f"Uploaded news to GCS: {gcs_path}")
             except Exception as e:
                 print(f"Error uploading to GCS: {e}")
 
-    def load_news(self) -> List[Dict[str, Any]]:
+    def load_news(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
+        gcs_path = self.get_gcs_path(date)
+        
         # 1. Try GCS
         if self.bucket:
             try:
-                blob = self.bucket.blob("news.json")
+                blob = self.bucket.blob(gcs_path)
                 data = blob.download_as_text()
                 parsed = json.loads(data)
                 if isinstance(parsed, dict):
                     return parsed.get("news", [parsed])
                 return parsed if isinstance(parsed, list) else []
             except NotFound:
-                print("news.json not found in GCS")
+                print(f"News file not found in GCS: {gcs_path}")
             except Exception as e:
                 print(f"Error reading from GCS: {e}")
-
-        # 2. Fallback to local
-        local_path = os.path.join(os.path.dirname(__file__), "..", "data", "news.json")
-        if os.path.exists(local_path):
-            with open(local_path, "r", encoding="utf-8") as f:
-                parsed = json.load(f)
-                if isinstance(parsed, dict):
-                    return parsed.get("news", [parsed])
-                return parsed if isinstance(parsed, list) else []
         
         return []

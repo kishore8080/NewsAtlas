@@ -14,24 +14,20 @@ def test_news():
     print("Initializing NewsService...")
     service = NewsService()
     
+    # Test Path Generation
+    print(f"GCS Path for today: {service.get_gcs_path()}")
+    print(f"GCS Path for 01-01-2025: {service.get_gcs_path('01-01-2025')}")
+
     if not os.getenv("OPENAI_API_KEY"):
         print("Error: OPENAI_API_KEY not found in environment.")
         return
 
-    print("Fetching RSS feeds...")
-    raw_news = service.fetch_rss_feeds()
-    print(f"Fetched {len(raw_news)} raw items.")
-    
-    if not raw_news:
-        print("No news fetched. Check internet connection or feed URLs.")
-        return
-
-    print("Processing with OpenAI (this may take a few seconds)...")
-    processed_news = service.process_news_with_ai(raw_news[:3]) # Limit to 3 for test
-    
-    print("\nProcessed News:")
-    import json
-    print(json.dumps(processed_news, indent=2))
+    print("\nTesting refresh_daily_news()...")
+    try:
+        service.refresh_daily_news()
+        print("\nRefresh cycle completed (check logs for GCS errors/success).")
+    except Exception as e:
+        print(f"\nError during refresh: {e}")
 
 if __name__ == "__main__":
     test_news()

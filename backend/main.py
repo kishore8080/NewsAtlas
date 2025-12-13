@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from api import news, quiz
 import os
 from dotenv import load_dotenv
-
 import tomllib
 
 load_dotenv()
@@ -40,11 +39,9 @@ async def root():
     return {
         "message": "EazyPrepAI Backend API",
         "status": "running",
-        "version": "1.0.4"
+        "version": "1.0.6"
     }
 
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
- 
- #dummy
