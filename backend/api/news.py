@@ -16,6 +16,8 @@ class NewsItem(BaseModel):
     date: Optional[str] = None
     source: Optional[str] = None
     relevance: Optional[List[str]] = None
+    key_points: Optional[List[str]] = None
+    importance: Optional[str] = None
 
 class NewsResponse(BaseModel):
     news: List[NewsItem]
@@ -24,12 +26,13 @@ class NewsResponse(BaseModel):
 @router.get("/news", response_model=NewsResponse)
 async def get_all_news(
     category: Optional[str] = None,
+    date: Optional[str] = None,
     limit: Optional[int] = 10
 ):
     """
     Get all current affairs news.
     """
-    news_data = news_service.load_news()
+    news_data = news_service.load_news(date=date)
     
     # Filter by category if provided
     if category:
@@ -63,14 +66,14 @@ async def refresh_news(background_tasks: BackgroundTasks):
     process them with AI, and update the cache.
     """
     def _refresh_task():
-        print("Starting news refresh...")
-        raw_news = news_service.fetch_rss_feeds()
-        processed_news = news_service.process_news_with_ai(raw_news)
-        if processed_news:
-            news_service.save_news(processed_news)
-            print("News refresh completed successfully.")
-        else:
-            print("News refresh failed or returned no data.")
+        try:
+            print("Background task started: refresh_daily_news")
+            news_service.refresh_daily_news()
+            print("Background task completed successfully")
+        except Exception as e:
+            import traceback
+            print(f"CRITICAL ERROR during news refresh: {e}")
+            traceback.print_exc()
 
     background_tasks.add_task(_refresh_task)
     return {"message": "News refresh started in background"}
