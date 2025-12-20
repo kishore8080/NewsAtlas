@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 from openai import OpenAI
-from supabase import create_client, Client
+# from supabase import create_client, Client
 
 # Load configuration
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "..", "config.toml")
@@ -34,11 +34,11 @@ class NewsService:
             print("Warning: OPENAI_API_KEY not found. AI features will be disabled.")
             self.client = None
 
-        try:
-            self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-        except Exception as e:
-            print(f"Warning: Supabase initialization failed: {e}")
-            self.supabase = None
+        # try:
+        #     self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        # except Exception as e:
+        #     print(f"Warning: Supabase initialization failed: {e}")
+        self.supabase = None
 
     def fetch_rss_feeds(self) -> List[Dict[str, Any]]:
         raw_news = []
