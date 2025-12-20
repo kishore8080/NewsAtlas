@@ -3,25 +3,27 @@ import os
 import tomllib
 import requests
 import pytz
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
 from openai import OpenAI
-from google.cloud import storage
-from google.cloud.exceptions import NotFound
+from supabase import create_client, Client
 
 # Load configuration
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "..", "config.toml")
 with open(CONFIG_PATH, "rb") as f:
     config = tomllib.load(f)
 
-BUCKET_NAME = config.get("storage", {}).get("bucket_name", "eazyprep-data")
 RSS_FEEDS = [
     "https://www.thehindu.com/news/national/feeder/default.rss",
     "https://www.thehindu.com/news/international/feeder/default.rss",
     "https://indianexpress.com/section/india/feed/",
 ]
 IST = pytz.timezone('Asia/Kolkata')
+
+# Supabase Credentials (TODO: Move to env vars in production)
+SUPABASE_URL = os.getenv("SUPABASE_URL", "https://lucounujcuwuncxopbmq.supabase.co")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1Y291bnVqY3V3dW5jeG9wYm1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNTgyNzMsImV4cCI6MjA3OTYzNDI3M30.YBua8SlBbX-9RshV4HGpGC2XWsDP6yoddOmBwU886ow")
 
 class NewsService:
     def __init__(self):
@@ -33,60 +35,10 @@ class NewsService:
             self.client = None
 
         try:
-            self.storage_client = storage.Client()
-            self.bucket = self.storage_client.bucket(BUCKET_NAME)
+            self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         except Exception as e:
-            print(f"Warning: GCS initialization failed: {e}")
-            self.bucket = None
-
-    def get_current_slot(self) -> int:
-        """
-        Calculates the current 3-hour slot (1-8) based on IST time.
-        Starts at 02:00 AM.
-        Slot 1: 02:00 - 04:59
-        Slot 2: 05:00 - 07:59
-        ...
-        """
-        now = datetime.now(IST)
-        hour = now.hour
-        
-        # If before 2 AM, it technically belongs to the previous day's last slot cycle,
-        # but for simplicity in this "daily" context, we can treat 00:00-01:59 as late night updates 
-        # or map them to Slot 8 of the *previous* day. 
-        # However, the user requirement says "from 2AM". 
-        # Let's map 00:00-01:59 to Slot 8 of the *current* day (effectively late night coverage) 
-        # OR strictly follow the 2AM start.
-        # Formula: (Hour - 2) // 3 + 1
-        
-        if hour < 2:
-            # 00:00 to 01:59 -> treat as part of previous day's cycle or just Slot 1?
-            # Let's assume it's Slot 1 of the new day for simplicity if we want to capture it,
-            # OR better, if the scheduler runs at 2AM, that's Slot 1.
-            return 1
-            
-        slot = ((hour - 2) // 3) + 1
-        return max(1, min(8, slot))
-
-    def get_gcs_path(self, date_str: Optional[str] = None, slot: Optional[int] = None) -> str:
-        """
-        Generates GCS path: news-data/Month-Year/dd-mm-yyyy-data-{slot}.json
-        If slot is None, it returns the base path prefix (without slot).
-        """
-        if not date_str:
-            now = datetime.now(IST)
-            date_str = now.strftime("%d-%m-%Y")
-        
-        try:
-            dt = datetime.strptime(date_str, "%d-%m-%Y")
-            month_year = dt.strftime("%B-%Y") # e.g., January-2025
-            
-            if slot is not None:
-                return f"news-data/{month_year}/{date_str}-data-{slot:02d}.json"
-            else:
-                # Used for listing/searching
-                return f"news-data/{month_year}/{date_str}-data-"
-        except ValueError:
-            return f"news-data/misc/{date_str}.json"
+            print(f"Warning: Supabase initialization failed: {e}")
+            self.supabase = None
 
     def fetch_rss_feeds(self) -> List[Dict[str, Any]]:
         raw_news = []
@@ -135,7 +87,6 @@ class NewsService:
         Return a JSON array of objects with this exact schema:
         [
             {{
-                "id": "unique-id-string",
                 "title": "Concise Title",
                 "description": "One line summary",
                 "content": "Detailed paragraph explaining the news and its UPSC relevance (approx 50-80 words).",
@@ -180,132 +131,120 @@ class NewsService:
             print(f"Error processing with AI: {e}")
             return []
 
-    def _validate_and_clean_news(self, news_list: List[Any]) -> List[Dict[str, Any]]:
-        cleaned = []
-        for item in news_list:
-            if isinstance(item, dict):
-                found_nested = False
-                for key in ["news", "items", "news_articles", "result", "articles"]:
-                    if key in item and isinstance(item[key], list):
-                        cleaned.extend(self._validate_and_clean_news(item[key]))
-                        found_nested = True
-                        break
-                
-                if not found_nested:
-                    if item.get("title") and item.get("description"):
-                        cleaned.append(item)
-            elif isinstance(item, list):
-                cleaned.extend(self._validate_and_clean_news(item))
-        return cleaned
-
     def refresh_daily_news(self):
         """
-        Fetches new news, deduplicates against ALL previous slots of today,
-        processes new items, assigns sequential IDs, and saves to CURRENT slot.
+        Fetches new news, processes with AI, and UPSERTS into Supabase.
+        Deduplication is handled by the database UNIQUE constraint (title, published_date).
         """
-        print("Starting slotted news refresh...")
+        print("Starting Supabase news refresh...")
         
-        today_str = datetime.now(IST).strftime("%d-%m-%Y")
-        current_slot = self.get_current_slot()
-        print(f"Current Slot: {current_slot} for {today_str}")
-
-        # 1. Load ALL news from previous slots (1 to current_slot-1)
-        #    Also load current slot if it exists (to overwrite/update it)
-        all_existing_news = []
-        for slot in range(1, 9): # Check all possible slots
-            slot_news = self.load_news_from_slot(today_str, slot)
-            all_existing_news.extend(slot_news)
-        
-        # Clean existing news
-        all_existing_news = self._validate_and_clean_news(all_existing_news)
-        existing_titles = {item.get('title') for item in all_existing_news if item.get('title')}
-        
-        # Calculate next ID start
-        previous_slots_count = 0
-        for slot in range(1, current_slot):
-            slot_news = self.load_news_from_slot(today_str, slot)
-            previous_slots_count += len(self._validate_and_clean_news(slot_news))
-            
-        print(f"Items in previous slots (1-{current_slot-1}): {previous_slots_count}")
-
-        # 2. Fetch RSS
+        # 1. Fetch RSS
         raw_news = self.fetch_rss_feeds()
         print(f"Fetched {len(raw_news)} raw items from RSS.")
         
-        # 3. Filter duplicates
-        new_raw_items = [item for item in raw_news if item['title'] not in existing_titles]
-        print(f"Found {len(new_raw_items)} new items to process (after deduplication).")
-        
-        if not new_raw_items:
-            print("No new news to process. Exiting refresh.")
+        if not raw_news:
+            print("No raw news found.")
             return
 
-        # 4. Process with AI
+        # 2. Process with AI
+        # Note: We process ALL raw news because we don't know what's in DB yet.
+        # Ideally, we'd check DB first, but for now let's rely on upsert.
+        # To save tokens, we could fetch titles from DB for today and filter.
+        
+        today_str = datetime.now(IST).strftime("%Y-%m-%d") # Supabase uses YYYY-MM-DD
+        
+        # Optimization: Get existing titles for today to avoid re-processing
+        existing_titles = set()
+        if self.supabase:
+            try:
+                res = self.supabase.table("news_items").select("title").eq("published_date", today_str).execute()
+                existing_titles = {item['title'] for item in res.data}
+            except Exception as e:
+                print(f"Error fetching existing titles: {e}")
+
+        new_raw_items = [item for item in raw_news if item['title'] not in existing_titles]
+        print(f"Found {len(new_raw_items)} new items to process (after local deduplication).")
+
+        if not new_raw_items:
+            print("No new news to process.")
+            return
+
         print(f"Sending {len(new_raw_items)} items to OpenAI...")
         processed_news = self.process_news_with_ai(new_raw_items)
+        
         if not processed_news:
-            print("AI processing returned no data (or empty list).")
+            print("AI processing returned no data.")
             return
-            
-        processed_news = self._validate_and_clean_news(processed_news)
-        print(f"AI returned {len(processed_news)} valid items.")
 
-        # 5. Assign Sequential IDs
-        # Start ID = previous_slots_count + 1
-        for i, item in enumerate(processed_news):
-            item['id'] = str(previous_slots_count + i + 1)
+        print(f"AI returned {len(processed_news)} items.")
 
-        # 6. Sort by Importance (High > Medium > Low)
-        importance_map = {"High": 3, "Medium": 2, "Low": 1}
-        processed_news.sort(key=lambda x: importance_map.get(x.get("importance", "Low"), 0), reverse=True)
-        
-        # 7. Save to CURRENT slot (Overwriting if exists)
-        self.save_news_to_slot(processed_news, today_str, current_slot)
-        print(f"SUCCESS: Saved {len(processed_news)} items to {today_str} Slot {current_slot}.")
-
-    def save_news_to_slot(self, news_data: List[Dict[str, Any]], date_str: str, slot: int):
-        gcs_path = self.get_gcs_path(date_str, slot)
-        print(f"Attempting to upload to GCS: {gcs_path}")
-        
-        if self.bucket:
-            try:
-                blob = self.bucket.blob(gcs_path)
-                blob.upload_from_string(json.dumps(news_data), content_type="application/json")
-                print(f"Uploaded news to GCS: {gcs_path}")
-            except Exception as e:
-                print(f"CRITICAL ERROR uploading to GCS: {e}")
+        # 3. Save to Supabase
+        if self.supabase:
+            for item in processed_news:
+                # Map fields to DB schema
+                db_item = {
+                    "title": item.get("title"),
+                    "description": item.get("description"),
+                    "content": item.get("content"),
+                    "category": item.get("category"),
+                    "source": item.get("source"),
+                    "published_date": item.get("date", today_str), # Ensure YYYY-MM-DD
+                    "key_points": item.get("key_points", []),
+                    "importance": item.get("importance", "Low"),
+                    "relevance_tags": item.get("relevance", [])
+                }
+                
+                try:
+                    # Upsert based on UNIQUE(title, published_date)
+                    self.supabase.table("news_items").upsert(db_item, on_conflict="title, published_date").execute()
+                    print(f"Upserted: {item.get('title')}")
+                except Exception as e:
+                    print(f"Error saving item {item.get('title')}: {e}")
         else:
-            print("CRITICAL ERROR: GCS Bucket not initialized.")
-
-    def load_news_from_slot(self, date_str: str, slot: int) -> List[Dict[str, Any]]:
-        gcs_path = self.get_gcs_path(date_str, slot)
-        if self.bucket:
-            try:
-                blob = self.bucket.blob(gcs_path)
-                data = blob.download_as_text()
-                parsed = json.loads(data)
-                if isinstance(parsed, dict):
-                    return parsed.get("news", [parsed])
-                return parsed if isinstance(parsed, list) else []
-            except NotFound:
-                return []
-            except Exception as e:
-                print(f"Error reading slot {slot}: {e}")
-                return []
-        return []
+            print("CRITICAL: Supabase client not initialized.")
 
     def load_news(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
         """
-        Aggregates news from ALL slots for the given date.
+        Loads news from Supabase.
+        date format input: dd-mm-yyyy (from frontend) -> convert to YYYY-MM-DD for DB
         """
+        if not self.supabase:
+            print("Supabase client not initialized.")
+            return []
+
         if not date:
-            now = datetime.now(IST)
-            date = now.strftime("%d-%m-%Y")
+            date = datetime.now(IST).strftime("%d-%m-%Y")
             
-        all_news = []
-        # Try loading slots 1 to 8
-        for slot in range(1, 9):
-            slot_news = self.load_news_from_slot(date, slot)
-            all_news.extend(self._validate_and_clean_news(slot_news))
+        # Convert dd-mm-yyyy to YYYY-MM-DD
+        try:
+            dt = datetime.strptime(date, "%d-%m-%Y")
+            db_date = dt.strftime("%Y-%m-%d")
+        except ValueError:
+            print(f"Invalid date format: {date}")
+            return []
+
+        try:
+            # Fetch news for the date, sorted by importance
+            # We can't easily sort by custom enum order in simple query, 
+            # so we'll fetch and sort in Python or use a case statement if using raw SQL.
+            # For now, fetch all and sort in Python.
+            response = self.supabase.table("news_items").select("*").eq("published_date", db_date).execute()
+            news_data = response.data
             
-        return all_news
+            # Map back to frontend expected format if needed (mostly same)
+            # Frontend expects 'relevance' but DB has 'relevance_tags'
+            mapped_news = []
+            for item in news_data:
+                item['relevance'] = item.pop('relevance_tags', [])
+                item['date'] = datetime.strptime(item['published_date'], "%Y-%m-%d").strftime("%d-%m-%Y") # Back to dd-mm-yyyy
+                mapped_news.append(item)
+                
+            # Sort by Importance
+            importance_map = {"High": 3, "Medium": 2, "Low": 1}
+            mapped_news.sort(key=lambda x: importance_map.get(x.get("importance", "Low"), 0), reverse=True)
+            
+            return mapped_news
+
+        except Exception as e:
+            print(f"Error loading news from Supabase: {e}")
+            return []
