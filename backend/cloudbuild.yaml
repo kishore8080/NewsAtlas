@@ -21,3 +21,6 @@ steps:
 
 images:
   - 'us-central1-docker.pkg.dev/protean-mind-243117/my-docker-repo/backend:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
