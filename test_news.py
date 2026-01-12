@@ -11,27 +11,30 @@ load_dotenv(".env.local")
 from services.news_service import NewsService
 
 def test_news():
-    print("Initializing NewsService...")
+    print("Initializing NewsService (Supabase)...")
     service = NewsService()
     
-    # Test Slot Calculation
-    current_slot = service.get_current_slot()
-    print(f"Current Slot (IST): {current_slot}")
-    
-    # Test Path Generation
-    print(f"GCS Path for Slot 1: {service.get_gcs_path(slot=1)}")
-    print(f"GCS Path for Current Slot: {service.get_gcs_path(slot=current_slot)}")
-
     if not os.getenv("OPENAI_API_KEY"):
         print("Error: OPENAI_API_KEY not found in environment.")
         return
 
-    print("\nTesting refresh_daily_news() with slotted storage...")
+    print("\nTesting refresh_daily_news() with Supabase...")
     try:
         service.refresh_daily_news()
-        print("\nRefresh cycle completed. Check logs for 'Uploaded news to GCS: ...-data-XX.json'")
+        print("\nRefresh cycle completed. Check Supabase dashboard for new rows.")
     except Exception as e:
         print(f"\nError during refresh: {e}")
+        import traceback
+        traceback.print_exc()
+
+    print("\nTesting load_news()...")
+    try:
+        news = service.load_news()
+        print(f"Loaded {len(news)} items from Supabase.")
+        if news:
+            print(f"Sample: {news[0]['title']}")
+    except Exception as e:
+        print(f"Error loading news: {e}")
 
 if __name__ == "__main__":
     test_news()
