@@ -6,6 +6,7 @@ import pytz
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from bs4 import BeautifulSoup
+from google.cloud import storage
 from openai import OpenAI
 from supabase import create_client, Client
 
@@ -39,6 +40,15 @@ class NewsService:
         except Exception as e:
             print(f"Warning: Supabase initialization failed: {e}")
             self.supabase = None
+
+        self.bucket_name = config.get("storage", {}).get("bucket_name")
+        self.storage_client = None
+        if self.bucket_name:
+            try:
+                self.storage_client = storage.Client()
+            except Exception as e:
+                print(f"Warning: GCS client initialization failed: {e}")
+                self.storage_client = None
 
     def fetch_rss_feeds(self) -> List[Dict[str, Any]]:
         raw_news = []
@@ -203,14 +213,20 @@ class NewsService:
         else:
             print("CRITICAL: Supabase client not initialized.")
 
+        # 4. Write news file to GCS
+        if self.storage_client and self.bucket_name:
+            self._write_gcs_news(processed_news, today_str)
+        else:
+            print("GCS not configured or unavailable. Skipping file upload.")
+
     def load_news(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Loads news from Supabase.
         date format input: dd-mm-yyyy (from frontend) -> convert to YYYY-MM-DD for DB
         """
         if not self.supabase:
-            print("Supabase client not initialized.")
-            return []
+            print("Supabase client not initialized. Falling back to local news data.")
+            return self._load_local_news()
 
         if not date:
             date = datetime.now(IST).strftime("%d-%m-%Y")
@@ -230,6 +246,10 @@ class NewsService:
             # For now, fetch all and sort in Python.
             response = self.supabase.table("news_items").select("*").eq("published_date", db_date).execute()
             news_data = response.data
+            if not news_data:
+                print(f"No Supabase news for {db_date}. Falling back to GCS/local news data.")
+                gcs_news = self._load_gcs_news(db_date)
+                return gcs_news or self._load_local_news()
             
             # Map back to frontend expected format if needed (mostly same)
             # Frontend expects 'relevance' but DB has 'relevance_tags'
@@ -247,4 +267,99 @@ class NewsService:
 
         except Exception as e:
             print(f"Error loading news from Supabase: {e}")
+            gcs_news = self._load_gcs_news(db_date)
+            return gcs_news or self._load_local_news()
+
+    def _load_local_news(self) -> List[Dict[str, Any]]:
+        """Load local sample news data when Supabase data is unavailable."""
+        try:
+            local_path = os.path.join(os.path.dirname(__file__), "..", "data", "news.json")
+            with open(local_path, "r", encoding="utf-8") as f:
+                news_data = json.load(f)
+
+            mapped_news = []
+            for item in news_data:
+                item['relevance'] = item.get('relevance', [])
+                item['date'] = item.get('date', item.get('published_date', ''))
+                mapped_news.append(item)
+
+            importance_map = {"High": 3, "Medium": 2, "Low": 1}
+            mapped_news.sort(key=lambda x: importance_map.get(x.get("importance", "Low"), 0), reverse=True)
+            return mapped_news
+        except Exception as e:
+            print(f"Error loading local news data: {e}")
+            return []
+
+    def _write_gcs_news(self, news_items: List[Dict[str, Any]], today_str: str):
+        """Write a timestamped news file to GCS in a year/month folder."""
+        if not self.storage_client or not self.bucket_name:
+            return
+
+        try:
+            dt = datetime.strptime(today_str, "%Y-%m-%d")
+            year = dt.strftime("%Y")
+            month = dt.strftime("%B")
+            day = dt.strftime("%d-%m-%Y")
+            prefix = f"news-data/{year}/{month}/"
+
+            bucket = self.storage_client.bucket(self.bucket_name)
+            blobs = list(self.storage_client.list_blobs(self.bucket_name, prefix=prefix))
+            existing_files = [blob.name for blob in blobs if blob.name.startswith(prefix) and blob.name.endswith('.json') and day in blob.name]
+            next_index = len(existing_files) + 1
+            filename = f"{day}-data-{next_index:02d}.json"
+            object_name = prefix + filename
+
+            blob = bucket.blob(object_name)
+            blob.upload_from_string(
+                json.dumps(news_items, ensure_ascii=False, indent=2),
+                content_type="application/json"
+            )
+            print(f"Uploaded news file to GCS: {object_name}")
+        except Exception as e:
+            print(f"Error writing news file to GCS: {e}")
+
+    def _load_gcs_news(self, db_date: str) -> List[Dict[str, Any]]:
+        """Load news data from GCS bucket if available."""
+        if not self.storage_client or not self.bucket_name:
+            return []
+
+        try:
+            dt = datetime.strptime(db_date, "%Y-%m-%d")
+            year = dt.strftime("%Y")
+            month = dt.strftime("%B")
+            day = dt.strftime("%d-%m-%Y")
+            prefix = f"news-data/{year}/{month}/"
+            blobs = list(self.storage_client.list_blobs(self.bucket_name, prefix=prefix))
+            matched_news = []
+
+            for blob in blobs:
+                if not blob.name.startswith(prefix):
+                    continue
+                if dt.strftime("%d-%m-%Y") not in blob.name:
+                    continue
+
+                content = blob.download_as_text(encoding="utf-8")
+                try:
+                    data = json.loads(content)
+                except json.JSONDecodeError:
+                    print(f"Invalid JSON in GCS object: {blob.name}")
+                    continue
+
+                if isinstance(data, list):
+                    matched_news.extend(data)
+                elif isinstance(data, dict):
+                    matched_news.append(data)
+
+            if not matched_news:
+                return []
+
+            for item in matched_news:
+                item['relevance'] = item.get('relevance', [])
+                item['date'] = item.get('date', item.get('published_date', dt.strftime('%Y-%m-%d')))
+
+            importance_map = {"High": 3, "Medium": 2, "Low": 1}
+            matched_news.sort(key=lambda x: importance_map.get(x.get("importance", "Low"), 0), reverse=True)
+            return matched_news
+        except Exception as e:
+            print(f"Error loading news from GCS: {e}")
             return []
