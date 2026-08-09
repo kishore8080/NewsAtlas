@@ -35,10 +35,10 @@ class NewsService:
             self.client = None
 
         try:
-           self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+            self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
         except Exception as e:
-           print(f"Warning: Supabase initialization failed: {e}")
-        #self.supabase = None
+            print(f"Warning: Supabase initialization failed: {e}")
+            self.supabase = None
 
     def fetch_rss_feeds(self) -> List[Dict[str, Any]]:
         raw_news = []
