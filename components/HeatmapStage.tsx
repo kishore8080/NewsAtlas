@@ -1,50 +1,52 @@
-import Image from "next/image";
+"use client";
+
+import dynamic from "next/dynamic";
 import { X } from "lucide-react";
-import type { HeatmapMarker, NewsItem } from "@/lib/heatmap";
-import { getSeverityLabel, heatmapMarkers } from "@/lib/heatmap";
+import type { HeatmapMarker } from "@/lib/heatmap";
+import { getSeverityLabel } from "@/lib/heatmap";
+
+const LeafletHeatmap = dynamic(() => import("@/components/LeafletHeatmap"), {
+  ssr: false,
+  loading: () => <div aria-live="polite" className="heatmap-map-loading">Loading map…</div>,
+});
 
 type HeatmapStageProps = {
+  markers: HeatmapMarker[];
   selectedMarker: HeatmapMarker | null;
-  selectedNews?: NewsItem;
+  selectedMarkerId: string | null;
   onSelectMarker: (marker: HeatmapMarker) => void;
   onCloseDetails: () => void;
+  onTileError: () => void;
+  onTileLoad: () => void;
+  tilesUnavailable: boolean;
 };
 
 export default function HeatmapStage({
+  markers,
   selectedMarker,
-  selectedNews,
+  selectedMarkerId,
   onSelectMarker,
   onCloseDetails,
+  onTileError,
+  onTileLoad,
+  tilesUnavailable,
 }: HeatmapStageProps) {
   return (
     <section aria-label="Global news event heatmap" className="heatmap-stage" role="region">
-      <Image
-        alt="Textured global map showing continent regions and colored news event markers"
-        className="heatmap-image"
-        decoding="async"
-        height={944}
-        priority
-        sizes="(max-width: 874px) calc(100vw - 24px), 850px"
-        src="/assets/global-news-heatmap-reference.png"
-        width={1389}
+      <LeafletHeatmap
+        markers={markers}
+        onSelectMarker={onSelectMarker}
+        onTileError={onTileError}
+        onTileLoad={onTileLoad}
+        selectedMarkerId={selectedMarkerId}
       />
 
-      {heatmapMarkers.map((marker) => {
-        const isSelected = selectedMarker?.id === marker.id;
-
-        return (
-          <button
-            aria-label={`View ${marker.label} event details`}
-            aria-pressed={isSelected}
-            className="heatmap-event-hit"
-            key={marker.id}
-            onClick={() => onSelectMarker(marker)}
-            style={{ left: marker.left, top: marker.top }}
-            title={`${marker.label} · ${getSeverityLabel(marker.severity)} activity`}
-            type="button"
-          />
-        );
-      })}
+      {tilesUnavailable && (
+        <div aria-live="polite" className="heatmap-tile-fallback" role="status">
+          <strong>Map tiles are unavailable</strong>
+          <span>Event markers remain available.</span>
+        </div>
+      )}
 
       {selectedMarker && (
         <div aria-live="polite" className="heatmap-detail-panel" role="status">
@@ -63,8 +65,7 @@ export default function HeatmapStage({
             </button>
           </div>
           <p className="heatmap-detail-copy">
-            {selectedNews?.title ??
-              `Global events currently show ${getSeverityLabel(selectedMarker.severity).toLowerCase()} activity in this region.`}
+            {selectedMarker.news.title} — {selectedMarker.news.description}
           </p>
         </div>
       )}

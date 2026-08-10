@@ -13,15 +13,17 @@ export interface NewsItem {
   relevance: string[];
   key_points?: string[];
   importance?: NewsImportance;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface HeatmapMarker {
   id: string;
   label: string;
   severity: HeatmapSeverity;
-  left: string;
-  top: string;
-  newsIndex?: number;
+  latitude: number;
+  longitude: number;
+  news: NewsItem;
 }
 
 export interface HeatmapLegendItem {
@@ -37,64 +39,106 @@ export const heatmapLegend: HeatmapLegendItem[] = [
   { severity: "low", label: "Low", dotClassName: "heatmap-legend-dot-low" },
 ];
 
-export const heatmapMarkers: HeatmapMarker[] = [
+type RegionSlot = {
+  label: string;
+  latitude: number;
+  longitude: number;
+  keywords: string[];
+};
+
+const regionSlots: RegionSlot[] = [
   {
-    id: "arctic-ocean",
-    label: "Arctic Ocean",
-    severity: "moderate",
-    left: "44.9%",
-    top: "19%",
-    newsIndex: 0,
+    label: "South Asia",
+    latitude: 22.5,
+    longitude: 78,
+    keywords: ["polity", "governance", "india", "social", "history"],
   },
   {
-    id: "europe",
-    label: "Europe",
-    severity: "high",
-    left: "56.5%",
-    top: "29.9%",
-    newsIndex: 1,
-  },
-  {
-    id: "asia",
-    label: "Asia",
-    severity: "very-high",
-    left: "71.3%",
-    top: "38%",
-    newsIndex: 2,
-  },
-  {
-    id: "east-asia",
     label: "East Asia",
-    severity: "high",
-    left: "95.9%",
-    top: "24%",
-    newsIndex: 3,
+    latitude: 35,
+    longitude: 116,
+    keywords: ["economy", "banking", "trade", "finance"],
   },
   {
-    id: "south-atlantic",
-    label: "South Atlantic",
-    severity: "low",
-    left: "43.4%",
-    top: "53.9%",
-    newsIndex: 4,
+    label: "Europe",
+    latitude: 50,
+    longitude: 15,
+    keywords: ["science", "technology", "digital", "innovation"],
   },
   {
-    id: "south-america",
+    label: "Africa",
+    latitude: 4,
+    longitude: 20,
+    keywords: ["environment", "climate", "renewable", "agriculture"],
+  },
+  {
+    label: "North America",
+    latitude: 39,
+    longitude: -102,
+    keywords: ["international", "defense", "security", "diplomacy"],
+  },
+  {
     label: "South America",
-    severity: "moderate",
-    left: "12.1%",
-    top: "62.9%",
-    newsIndex: 5,
+    latitude: -15,
+    longitude: -60,
+    keywords: ["health", "education", "development"],
   },
   {
-    id: "australia",
-    label: "Australia",
-    severity: "low",
-    left: "97.6%",
-    top: "65%",
-    newsIndex: 6,
+    label: "Oceania",
+    latitude: -25,
+    longitude: 135,
+    keywords: ["pacific", "maritime", "ocean"],
   },
 ];
+
+function stableHash(value: string) {
+  let hash = 2166136261;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function clamp(value: number, minimum: number, maximum: number) {
+  return Math.min(Math.max(value, minimum), maximum);
+}
+
+function getRegionSlot(newsItem: NewsItem, index: number) {
+  const searchableText = [newsItem.category, ...newsItem.relevance].join(" ").toLowerCase();
+  const matchedSlot = regionSlots.find((slot) =>
+    slot.keywords.some((keyword) => searchableText.includes(keyword)),
+  );
+
+  return matchedSlot ?? regionSlots[index % regionSlots.length];
+}
+
+function getSeverity(importance?: NewsImportance): HeatmapSeverity {
+  if (importance === "High") return "very-high";
+  if (importance === "Medium") return "high";
+  if (importance === "Low") return "low";
+  return "moderate";
+}
+
+export function createHeatmapMarkers(news: NewsItem[]): HeatmapMarker[] {
+  return news.map((newsItem, index) => {
+    const slot = getRegionSlot(newsItem, index);
+    const hash = stableHash(`${newsItem.id}:${newsItem.title}:${index}`);
+    const latitudeJitter = ((hash % 9) - 4) * 0.7;
+    const longitudeJitter = ((((hash >>> 4) % 13) - 6) * 1.1);
+
+    return {
+      id: newsItem.id || `news-${index}`,
+      label: slot.label,
+      severity: getSeverity(newsItem.importance),
+      latitude: clamp(newsItem.latitude ?? slot.latitude + latitudeJitter, -80, 80),
+      longitude: clamp(newsItem.longitude ?? slot.longitude + longitudeJitter, -180, 180),
+      news: newsItem,
+    };
+  });
+}
 
 export function getSeverityLabel(severity: HeatmapSeverity) {
   return heatmapLegend.find((item) => item.severity === severity)?.label ?? "Unknown";

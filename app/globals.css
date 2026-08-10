@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 :root {
   --event-bg: #020710;
@@ -101,7 +102,7 @@
     padding: clamp(10rem, 32vh, 18rem) 1.5rem 4rem;
   }
 
-  .event-globe-button {
+  .event-globe-decoration {
     display: inline-flex;
     width: 120px;
     height: 120px;
@@ -113,16 +114,6 @@
     background: var(--event-surface);
     color: var(--event-icon);
     box-shadow: 0 12px 30px rgb(0 0 0 / 14%);
-    transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
-  }
-
-  .event-globe-button:hover {
-    border-color: #667594;
-    background: var(--event-surface-hover);
-  }
-
-  .event-globe-button:active {
-    transform: scale(0.96);
   }
 
   .event-track-button {
@@ -447,16 +438,181 @@
     border-left: 1px solid #171d2b;
   }
 
-  .heatmap-image {
+  .heatmap-leaflet-map {
+    width: 100%;
+    height: 100%;
+    background: var(--event-map-base);
+    font-family: var(--font-ui);
+  }
+
+  .heatmap-leaflet-map .leaflet-tile-pane {
+    filter: brightness(0.58) saturate(0.78) contrast(1.08);
+  }
+
+  .heatmap-leaflet-map .leaflet-control-zoom {
+    overflow: hidden;
+    border: 1px solid var(--event-pill-border);
+    border-radius: 0.625rem;
+    box-shadow: 0 5px 14px rgb(0 0 0 / 28%);
+  }
+
+  .heatmap-leaflet-map .leaflet-control-zoom a {
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    background: rgb(4 9 23 / 88%);
+    color: var(--event-text);
+    line-height: 2rem;
+    transition: background-color 180ms ease, color 180ms ease;
+  }
+
+  .heatmap-leaflet-map .leaflet-control-zoom a:hover {
+    background: #17233a;
+    color: white;
+  }
+
+  .heatmap-leaflet-map .leaflet-control-attribution {
+    border-radius: 0.375rem 0 0 0;
+    background: rgb(4 9 23 / 80%);
+    color: var(--event-header-muted);
+    font-size: 0.625rem;
+  }
+
+  .heatmap-leaflet-map .leaflet-control-attribution a {
+    color: #a9b6d0;
+  }
+
+  .heatmap-event-icon {
+    width: 28px !important;
+    height: 28px !important;
+    margin: 0 !important;
+    border: 0;
+    background: transparent;
+  }
+
+  .heatmap-marker {
+    display: block;
+    width: 18px;
+    height: 18px;
+    margin: 5px;
+    border: 2px solid rgb(255 255 255 / 75%);
+    border-radius: 999px;
+    box-shadow: 0 0 0 8px rgb(255 255 255 / 9%), 0 0 18px rgb(255 255 255 / 22%);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .heatmap-marker:hover,
+  .heatmap-marker.is-selected {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 9px rgb(255 255 255 / 14%), 0 0 22px rgb(255 255 255 / 38%);
+  }
+
+  .heatmap-marker-very-high {
+    background: var(--event-legend-very-high);
+    box-shadow: 0 0 0 8px rgb(255 51 69 / 22%), 0 0 18px rgb(255 51 69 / 42%);
+  }
+
+  .heatmap-marker-high {
+    background: var(--event-legend-high);
+    box-shadow: 0 0 0 8px rgb(255 121 0 / 22%), 0 0 18px rgb(255 121 0 / 42%);
+  }
+
+  .heatmap-marker-moderate {
+    background: var(--event-legend-moderate);
+    box-shadow: 0 0 0 8px rgb(49 124 240 / 22%), 0 0 18px rgb(49 124 240 / 42%);
+  }
+
+  .heatmap-marker-low {
+    background: var(--event-legend-low);
+    box-shadow: 0 0 0 8px rgb(20 185 170 / 22%), 0 0 18px rgb(20 185 170 / 42%);
+  }
+
+  .heatmap-map-loading {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    place-items: center;
+    background: var(--event-map-base);
+    color: var(--event-header-muted);
+    font-size: 0.875rem;
+  }
+
+  .heatmap-tile-fallback {
     position: absolute;
-    top: -9.8824%;
-    left: -30.7059%;
-    width: 163.4118%;
-    max-width: none;
-    height: 111.0588%;
-    object-fit: fill;
-    pointer-events: none;
-    user-select: none;
+    top: 1rem;
+    left: 50%;
+    z-index: 12;
+    display: grid;
+    gap: 0.25rem;
+    width: max-content;
+    max-width: calc(100% - 2rem);
+    transform: translateX(-50%);
+    padding: 0.625rem 0.875rem;
+    border: 1px solid rgb(255 255 255 / 14%);
+    border-radius: 0.625rem;
+    background: rgb(9 18 36 / 92%);
+    color: #d7deed;
+    font-size: 0.75rem;
+    text-align: center;
+    box-shadow: 0 10px 24px rgb(0 0 0 / 24%);
+  }
+
+  .heatmap-tile-fallback span {
+    color: #aab6ca;
+  }
+
+  .heatmap-leaflet-map .leaflet-popup-content-wrapper,
+  .heatmap-leaflet-map .leaflet-popup-tip {
+    border: 1px solid #263650;
+    background: #091224;
+    color: #d7deed;
+    box-shadow: 0 12px 24px rgb(0 0 0 / 32%);
+  }
+
+  .heatmap-leaflet-map .leaflet-popup-content-wrapper {
+    border-radius: 0.625rem;
+  }
+
+  .heatmap-leaflet-map .leaflet-popup-content {
+    min-width: 220px;
+    margin: 0.875rem 1rem;
+  }
+
+  .heatmap-leaflet-map .leaflet-popup-close-button {
+    color: #8690a7;
+  }
+
+  .heatmap-leaflet-map .leaflet-popup-close-button:hover {
+    color: white;
+  }
+
+  .heatmap-popup-kicker {
+    color: var(--event-icon-soft);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .heatmap-popup-title {
+    margin-top: 0.375rem;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .heatmap-popup-description {
+    margin-top: 0.5rem;
+    color: #aab6ca;
+    font-size: 0.75rem;
+    line-height: 1.15rem;
+  }
+
+  .heatmap-popup-meta {
+    margin-top: 0.625rem;
+    color: #8690a7;
+    font-size: 0.6875rem;
   }
 
   .heatmap-event-hit {
@@ -606,7 +762,7 @@
       padding-left: 1rem;
     }
 
-    .event-globe-button {
+    .event-globe-decoration {
       width: 104px;
       height: 104px;
     }

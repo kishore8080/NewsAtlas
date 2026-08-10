@@ -2,12 +2,10 @@
 
 import { Globe2, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import HelpButton from "@/components/HelpButton";
 
 export default function EventPulseHome() {
   const router = useRouter();
-  const [isTracking, setIsTracking] = useState(false);
 
   return (
     <main className="event-screen flex flex-col items-center overflow-hidden">
@@ -15,30 +13,19 @@ export default function EventPulseHome() {
         aria-label="Event pulse"
         className="event-pulse-content flex flex-col items-center text-center"
       >
-        <button
-          aria-label="Open global events"
-          className="event-globe-button group"
-          onClick={() => router.push("/current-affairs")}
-          title="Open global events"
-          type="button"
-        >
-          <Globe2
-            aria-hidden="true"
-            className="transition-transform duration-200 group-hover:scale-105"
-            size={56}
-            strokeWidth={1.8}
-          />
-        </button>
+        <div aria-hidden="true" className="event-globe-decoration">
+          <Globe2 size={56} strokeWidth={1.8} />
+        </div>
 
         <button
-          aria-label={isTracking ? "Tracking global events" : "Track global events"}
-          className={`event-track-button ${isTracking ? "is-tracking" : ""}`}
-          onClick={() => setIsTracking((current) => !current)}
-          title="Track global events"
+          aria-label="Open global news heatmap"
+          className="event-track-button"
+          onClick={() => router.push("/current-affairs")}
+          title="Open global news heatmap"
           type="button"
         >
           <Zap aria-hidden="true" className="text-event-icon-soft" size={32} strokeWidth={2} />
-          <span aria-live="polite">{isTracking ? "Tracking…" : "What's happening?"}</span>
+          <span>What&apos;s happening?</span>
           <span aria-label="New events available" className="event-notification-dot" />
         </button>
 

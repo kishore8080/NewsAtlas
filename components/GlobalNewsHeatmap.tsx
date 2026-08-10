@@ -1,11 +1,12 @@
 "use client";
 
 import { RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import HelpButton from "@/components/HelpButton";
 import HeatmapHeader from "@/components/HeatmapHeader";
 import HeatmapStage from "@/components/HeatmapStage";
 import type { HeatmapMarker, NewsItem } from "@/lib/heatmap";
+import { createHeatmapMarkers } from "@/lib/heatmap";
 
 type AffairsMode = "today" | "history";
 
@@ -32,11 +33,15 @@ export default function GlobalNewsHeatmap({
 }: GlobalNewsHeatmapProps) {
   const [selectedMarkerState, setSelectedMarkerState] = useState<{
     filterKey: string;
-    marker: HeatmapMarker;
+    markerId: string;
   } | null>(null);
+  const [tilesUnavailable, setTilesUnavailable] = useState(false);
+  const markers = useMemo(() => createHeatmapMarkers(news), [news]);
   const filterKey = `${mode}:${selectedDate}`;
-  const selectedMarker = selectedMarkerState?.filterKey === filterKey ? selectedMarkerState.marker : null;
-  const selectedNews = selectedMarker?.newsIndex !== undefined ? news[selectedMarker.newsIndex] : undefined;
+  const selectedMarkerId = selectedMarkerState?.filterKey === filterKey ? selectedMarkerState.markerId : null;
+  const selectedMarker: HeatmapMarker | null = selectedMarkerId
+    ? markers.find((marker) => marker.id === selectedMarkerId) ?? null
+    : null;
 
   return (
     <main aria-busy={loading} className="heatmap-screen">
@@ -49,10 +54,14 @@ export default function GlobalNewsHeatmap({
 
       <div className="heatmap-main">
         <HeatmapStage
+          markers={markers}
           onCloseDetails={() => setSelectedMarkerState(null)}
-          onSelectMarker={(marker) => setSelectedMarkerState({ filterKey, marker })}
+          onSelectMarker={(marker) => setSelectedMarkerState({ filterKey, markerId: marker.id })}
+          onTileError={() => setTilesUnavailable(true)}
+          onTileLoad={() => setTilesUnavailable(false)}
           selectedMarker={selectedMarker}
-          selectedNews={selectedNews}
+          selectedMarkerId={selectedMarkerId}
+          tilesUnavailable={tilesUnavailable}
         />
 
         {loading && (
