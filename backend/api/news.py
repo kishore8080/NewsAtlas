@@ -53,19 +53,6 @@ async def get_all_news(
         "total": len(news_data)
     }
 
-@router.get("/news/{news_id}", response_model=NewsItem)
-async def get_news_by_id(news_id: str):
-    """
-    Get a specific news item by ID.
-    """
-    news_data = news_service.load_news()
-    
-    for item in news_data:
-        if str(item.get("id")) == str(news_id):
-            return item
-    
-    raise HTTPException(status_code=404, detail="News item not found")
-
 @router.post("/news/refresh")
 @router.get("/news/refresh")
 async def refresh_news(
@@ -101,4 +88,17 @@ async def refresh_news(
             "status": "pending",
             "message": "News refresh started in background"
         }
+
+@router.get("/news/{news_id}", response_model=NewsItem)
+async def get_news_by_id(news_id: str):
+    """
+    Get a specific news item by ID.
+    """
+    news_data = news_service.load_news()
+    
+    for item in news_data:
+        if str(item.get("id")) == str(news_id):
+            return item
+    
+    raise HTTPException(status_code=404, detail="News item not found")
 
