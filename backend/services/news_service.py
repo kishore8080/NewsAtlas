@@ -359,6 +359,8 @@ class NewsService:
 
         # 4. Save to Supabase TABLE_NEWS
         upserted_count = 0
+        upsert_errors = []
+
         if self.supabase:
             for item in processed_news:
                 source_url = item.get("source_url") or item.get("link") or item.get("url")
@@ -384,13 +386,27 @@ class NewsService:
                 }
                 
                 try:
-                    self.supabase.table("TABLE_NEWS").upsert(db_item, on_conflict="source_url").execute()
+                    # Attempt upsert with on_conflict
+                    try:
+                        self.supabase.table("TABLE_NEWS").upsert(db_item, on_conflict="source_url").execute()
+                    except Exception:
+                        # Fallback: attempt plain upsert or insert if on_conflict column spec fails
+                        try:
+                            self.supabase.table("TABLE_NEWS").upsert(db_item).execute()
+                        except Exception:
+                            self.supabase.table("TABLE_NEWS").insert(db_item).execute()
+
                     upserted_count += 1
                     print(f"Upserted to TABLE_NEWS: {item.get('title')}")
                 except Exception as e:
-                    print(f"Error saving item to TABLE_NEWS ({item.get('title')}): {e}")
+                    err_msg = f"Failed to save '{item.get('title')}': {str(e)}"
+                    print(f"Error saving item to TABLE_NEWS: {err_msg}")
+                    if len(upsert_errors) < 5:
+                        upsert_errors.append(err_msg)
         else:
-            print("CRITICAL: Supabase client not initialized.")
+            err_msg = "Supabase client not initialized. Ensure SUPABASE_URL and SUPABASE_KEY are set."
+            print(f"CRITICAL: {err_msg}")
+            upsert_errors.append(err_msg)
 
         # 5. Write news file to GCS (if configured)
         if self.storage_client and self.bucket_name:
@@ -398,8 +414,9 @@ class NewsService:
         else:
             print("GCS not configured or unavailable. Skipping file upload.")
 
-        return {
-            "status": "success",
+        res_status = "success" if upserted_count > 0 else ("warning" if upsert_errors else "success")
+        res_dict = {
+            "status": res_status,
             "fetched_raw_count": len(raw_news),
             "new_items_count": len(new_raw_items),
             "processed_count": len(processed_news),
@@ -407,6 +424,10 @@ class NewsService:
             "timestamp": datetime.now(IST).isoformat(),
             "message": f"Successfully processed {len(processed_news)} articles and upserted {upserted_count} into TABLE_NEWS."
         }
+        if upsert_errors:
+            res_dict["errors"] = upsert_errors
+
+        return res_dict
 
     def load_news(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
         """
