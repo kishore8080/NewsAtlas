@@ -5,6 +5,17 @@ import requests
 import pytz
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+from dotenv import load_dotenv
+
+# Ensure .env is loaded
+ENV_PATH = os.path.join(os.path.dirname(__file__), "..", ".env")
+load_dotenv(ENV_PATH)
+load_dotenv()
+
+try:
+    import feedparser
+except (ImportError, ModuleNotFoundError):
+    feedparser = None
 from bs4 import BeautifulSoup
 from google.cloud import storage
 from openai import OpenAI
@@ -22,23 +33,19 @@ RSS_FEEDS = [
 ]
 IST = pytz.timezone('Asia/Kolkata')
 
-# Supabase Credentials (TODO: Move to env vars in production)
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://lucounujcuwuncxopbmq.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1Y291bnVqY3V3dW5jeG9wYm1xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNTgyNzMsImV4cCI6MjA3OTYzNDI3M30.YBua8SlBbX-9RshV4HGpGC2XWsDP6yoddOmBwU886ow")
-
 class NewsService:
     def __init__(self):
-        api_key = os.getenv("OPENAI_API_KEY")
-        if api_key:
-            self.client = OpenAI(api_key=api_key)
-        else:
-            print("Warning: OPENAI_API_KEY not found. AI features will be disabled.")
-            self.client = None
+        supabase_url = os.getenv("SUPABASE_URL")
+        supabase_key = os.getenv("SUPABASE_KEY")
 
-        try:
-            self.supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-        except Exception as e:
-            print(f"Warning: Supabase initialization failed: {e}")
+        if supabase_url and supabase_key:
+            try:
+                self.supabase: Client = create_client(supabase_url, supabase_key)
+            except Exception as e:
+                print(f"Warning: Supabase initialization failed: {e}")
+                self.supabase = None
+        else:
+            print("Warning: SUPABASE_URL or SUPABASE_KEY environment variables missing.")
             self.supabase = None
 
         self.bucket_name = config.get("storage", {}).get("bucket_name")
@@ -53,25 +60,49 @@ class NewsService:
     def fetch_rss_feeds(self) -> List[Dict[str, Any]]:
         raw_news = []
         for feed_url in RSS_FEEDS:
-            try:
-                response = requests.get(feed_url, timeout=10)
-                soup = BeautifulSoup(response.content, "html.parser")
-                items = soup.find_all("item")
-                
-                for item in items[:5]:  # Limit to 5 per feed
-                    title = item.title.text if item.title else ""
-                    link = item.link.text if item.link else ""
-                    description = item.description.text if item.description else ""
-                    pub_date = item.pubDate.text if item.pubDate else str(datetime.now(IST))
-                    
-                    raw_news.append({
-                        "title": title,
-                        "link": link,
-                        "description": self._clean_html(description),
-                        "published": pub_date
-                    })
-            except Exception as e:
-                print(f"Error fetching feed {feed_url}: {e}")
+            fetched = False
+            if feedparser is not None:
+                try:
+                    parsed_feed = feedparser.parse(feed_url)
+                    if parsed_feed.entries:
+                        for entry in parsed_feed.entries[:5]:  # Limit to 5 per feed
+                            title = getattr(entry, "title", "")
+                            link = getattr(entry, "link", "")
+                            description = getattr(entry, "summary", getattr(entry, "description", ""))
+                            published = getattr(entry, "published", getattr(entry, "updated", str(datetime.now(IST))))
+                            
+                            raw_news.append({
+                                "title": title.strip(),
+                                "link": link.strip(),
+                                "description": self._clean_html(description),
+                                "published": published
+                            })
+                        fetched = True
+                except Exception as e:
+                    print(f"feedparser failed for {feed_url} ({e}), falling back...")
+
+            if not fetched:
+                try:
+                    response = requests.get(feed_url, timeout=10)
+                    soup = BeautifulSoup(response.content, "xml")
+                    items = soup.find_all("item")
+                    if not items:
+                        soup = BeautifulSoup(response.content, "html.parser")
+                        items = soup.find_all("item")
+
+                    for item in items[:5]:
+                        title = item.title.text if item.title else ""
+                        link = item.link.text if item.link else ""
+                        description = item.description.text if item.description else ""
+                        pub_date = item.pubDate.text if item.pubDate else str(datetime.now(IST))
+                        raw_news.append({
+                            "title": title.strip(),
+                            "link": link.strip(),
+                            "description": self._clean_html(description),
+                            "published": pub_date
+                        })
+                except Exception as ex:
+                    print(f"Error fetching feed {feed_url}: {ex}")
         return raw_news
 
     def _clean_html(self, html_content: str) -> str:
@@ -80,10 +111,6 @@ class NewsService:
 
     def process_news_with_ai(self, raw_news: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         if not raw_news:
-            return []
-
-        if not self.client:
-            print("Error: OpenAI client not initialized.")
             return []
 
         prompt = f"""
@@ -98,34 +125,120 @@ class NewsService:
         [
             {{
                 "title": "Concise Title",
-                "description": "One line summary",
-                "content": "Detailed paragraph explaining the news and its UPSC relevance (approx 50-80 words).",
+                "summary": "Comprehensive summary paragraph explaining the news event, background, and specific UPSC civil services exam relevance (50-80 words).",
                 "category": "One of: Polity, Economy, Environment, Science & Technology, International Relations, History, Geography, Social Issues",
-                "date": "YYYY-MM-DD",
+                "region": "National" | "International" | "State",
                 "source": "Source Name",
-                "relevance": ["Tag1", "Tag2", "Tag3"],
-                "key_points": ["Point 1", "Point 2", "Point 3"],
-                "importance": "High" | "Medium" | "Low"
+                "source_url": "Direct link URL from raw news item",
+                "image_url": null,
+                "priority": 8
             }}
         ]
         
         Guidelines:
-        - "key_points": Extract 3-4 bullet points suitable for notes.
-        - "importance": Assign based on UPSC relevance. High = Critical for exam.
-        - Ensure content is educational and neutral.
+        - "priority": Integer between 1 and 10 based on UPSC exam importance (10 = Critical core topic, 1 = Low relevance).
+        - "category": Map accurately to UPSC GS syllabus topics.
+        - "region": Assign National, International, or State.
+        - "source_url": Must be preserved accurately from the input raw news link.
+        - Ensure content is educational, facts-driven, and neutral.
         """
 
+        providers = [
+            ("Gemini", self._call_gemini_api),
+            ("OpenAI", self._call_openai_api),
+            ("Groq", self._call_groq_api)
+        ]
+
+        for provider_name, provider_fn in providers:
+            try:
+                print(f"Attempting AI news processing using {provider_name}...")
+                results = provider_fn(prompt)
+                if results:
+                    print(f"Successfully processed {len(results)} items using {provider_name}.")
+                    return results
+            except Exception as e:
+                print(f"Provider {provider_name} failed: {e}. Trying next fallback...")
+
+        print("CRITICAL: All AI providers (Gemini, OpenAI, Groq) failed or hit quota limits.")
+        return []
+
+    def _call_gemini_api(self, prompt: str) -> List[Dict[str, Any]]:
+        key = os.getenv("GEMINI_API_KEY")
+        if not key:
+            raise ValueError("GEMINI_API_KEY environment variable missing.")
+
+        for model_name in ["gemini-2.0-flash", "gemini-2.5-flash"]:
+            try:
+                client = OpenAI(
+                    api_key=key,
+                    base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
+                )
+                response = client.chat.completions.create(
+                    model=model_name,
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant that outputs JSON."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    response_format={"type": "json_object"}
+                )
+                content = response.choices[0].message.content
+                return self._parse_ai_json(content)
+            except Exception as ex:
+                try:
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={key}"
+                    body = {
+                        "contents": [{"parts": [{"text": prompt}]}],
+                        "generationConfig": {"response_mime_type": "application/json"}
+                    }
+                    r = requests.post(url, json=body, timeout=25)
+                    if r.status_code == 200:
+                        data = r.json()
+                        text = data["candidates"][0]["content"]["parts"][0]["text"]
+                        return self._parse_ai_json(text)
+                except Exception:
+                    pass
+                raise ex
+
+    def _call_openai_api(self, prompt: str) -> List[Dict[str, Any]]:
+        key = os.getenv("OPENAI_API_KEY")
+        if not key:
+            raise ValueError("OPENAI_API_KEY environment variable missing.")
+
+        client = OpenAI(api_key=key)
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that outputs JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        content = response.choices[0].message.content
+        return self._parse_ai_json(content)
+
+    def _call_groq_api(self, prompt: str) -> List[Dict[str, Any]]:
+        key = os.getenv("GROQ_API_KEY")
+        if not key:
+            raise ValueError("GROQ_API_KEY environment variable missing.")
+
+        client = OpenAI(
+            api_key=key,
+            base_url="https://api.groq.com/openai/v1"
+        )
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that outputs JSON."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={"type": "json_object"}
+        )
+        content = response.choices[0].message.content
+        return self._parse_ai_json(content)
+
+    def _parse_ai_json(self, content: str) -> List[Dict[str, Any]]:
         try:
-            response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "system", "content": "You are a helpful assistant that outputs JSON."},
-                          {"role": "user", "content": prompt}],
-                response_format={"type": "json_object"}
-            )
-            content = response.choices[0].message.content
             parsed = json.loads(content)
-            
-            # Handle various AI response structures
             if isinstance(parsed, dict):
                 for key in ["news", "items", "news_articles", "result", "articles", "response"]:
                     if key in parsed and isinstance(parsed[key], list):
@@ -138,137 +251,201 @@ class NewsService:
             else:
                 return []
         except Exception as e:
-            print(f"Error processing with AI: {e}")
+            print(f"Failed to parse AI JSON output: {e}")
             return []
 
-    def refresh_daily_news(self):
+    def refresh_daily_news(self) -> Dict[str, Any]:
         """
-        Fetches new news, processes with AI, and UPSERTS into Supabase.
-        Deduplication is handled by the database UNIQUE constraint (title, published_date).
+        Fetches new news, processes with AI, and UPSERTS into Supabase TABLE_NEWS table.
+        Deduplication is handled by unique source_url constraint.
+        Returns execution metrics dict.
         """
-        print("Starting Supabase news refresh...")
+        print("Starting Supabase news refresh for TABLE_NEWS...")
+        today_str = datetime.now(IST).strftime("%Y-%m-%d")
         
         # 1. Fetch RSS
         raw_news = self.fetch_rss_feeds()
         print(f"Fetched {len(raw_news)} raw items from RSS.")
         
         if not raw_news:
-            print("No raw news found.")
-            return
+            return {
+                "status": "warning",
+                "fetched_raw_count": 0,
+                "processed_count": 0,
+                "upserted_count": 0,
+                "message": "No raw news found from RSS feeds."
+            }
 
-        # 2. Process with AI
-        # Note: We process ALL raw news because we don't know what's in DB yet.
-        # Ideally, we'd check DB first, but for now let's rely on upsert.
-        # To save tokens, we could fetch titles from DB for today and filter.
-        
-        today_str = datetime.now(IST).strftime("%Y-%m-%d") # Supabase uses YYYY-MM-DD
-        
-        # Optimization: Get existing titles for today to avoid re-processing
-        existing_titles = set()
+        # 2. Deduplication check: Get existing source_urls from TABLE_NEWS
+        existing_urls = set()
         if self.supabase:
             try:
-                res = self.supabase.table("news_items").select("title").eq("published_date", today_str).execute()
-                existing_titles = {item['title'] for item in res.data}
+                res = self.supabase.table("TABLE_NEWS").select("source_url").execute()
+                if res.data:
+                    existing_urls = {item['source_url'] for item in res.data if item.get('source_url')}
             except Exception as e:
-                print(f"Error fetching existing titles: {e}")
+                print(f"Error fetching existing source_urls: {e}")
 
-        new_raw_items = [item for item in raw_news if item['title'] not in existing_titles]
-        print(f"Found {len(new_raw_items)} new items to process (after local deduplication).")
+        new_raw_items = [item for item in raw_news if item.get('link') not in existing_urls]
+        print(f"Found {len(new_raw_items)} new items to process (after URL deduplication).")
 
         if not new_raw_items:
-            print("No new news to process.")
-            return
+            return {
+                "status": "success",
+                "fetched_raw_count": len(raw_news),
+                "new_items_count": 0,
+                "processed_count": 0,
+                "upserted_count": 0,
+                "message": "No new news items to process."
+            }
 
+        # 3. Process with AI
         print(f"Sending {len(new_raw_items)} items to OpenAI...")
         processed_news = self.process_news_with_ai(new_raw_items)
         
         if not processed_news:
-            print("AI processing returned no data.")
-            return
+            return {
+                "status": "warning",
+                "fetched_raw_count": len(raw_news),
+                "new_items_count": len(new_raw_items),
+                "processed_count": 0,
+                "upserted_count": 0,
+                "message": "AI processing returned no items."
+            }
 
         print(f"AI returned {len(processed_news)} items.")
 
-        # 3. Save to Supabase
+        # 4. Save to Supabase TABLE_NEWS
+        upserted_count = 0
         if self.supabase:
             for item in processed_news:
-                # Map fields to DB schema
+                source_url = item.get("source_url") or item.get("link") or item.get("url")
+                if not source_url:
+                    continue
+
+                raw_priority = item.get("priority", 5)
+                try:
+                    priority = min(max(int(raw_priority), 1), 10)
+                except (ValueError, TypeError):
+                    priority = 5
+
                 db_item = {
-                    "title": item.get("title"),
-                    "description": item.get("description"),
-                    "content": item.get("content"),
-                    "category": item.get("category"),
-                    "source": item.get("source"),
-                    "published_date": item.get("date", today_str), # Ensure YYYY-MM-DD
-                    "key_points": item.get("key_points", []),
-                    "importance": item.get("importance", "Low"),
-                    "relevance_tags": item.get("relevance", [])
+                    "datetime": datetime.now(IST).isoformat(),
+                    "title": item.get("title", "UPSC News Update"),
+                    "summary": item.get("summary") or item.get("description") or item.get("content", ""),
+                    "category": item.get("category", "Polity"),
+                    "region": item.get("region", "National"),
+                    "source": item.get("source", "The Hindu"),
+                    "source_url": source_url,
+                    "image_url": item.get("image_url"),
+                    "priority": priority
                 }
                 
                 try:
-                    # Upsert based on UNIQUE(title, published_date)
-                    self.supabase.table("news_items").upsert(db_item, on_conflict="title, published_date").execute()
-                    print(f"Upserted: {item.get('title')}")
+                    self.supabase.table("TABLE_NEWS").upsert(db_item, on_conflict="source_url").execute()
+                    upserted_count += 1
+                    print(f"Upserted to TABLE_NEWS: {item.get('title')}")
                 except Exception as e:
-                    print(f"Error saving item {item.get('title')}: {e}")
+                    print(f"Error saving item to TABLE_NEWS ({item.get('title')}): {e}")
         else:
             print("CRITICAL: Supabase client not initialized.")
 
-        # 4. Write news file to GCS
+        # 5. Write news file to GCS (if configured)
         if self.storage_client and self.bucket_name:
             self._write_gcs_news(processed_news, today_str)
         else:
             print("GCS not configured or unavailable. Skipping file upload.")
 
+        return {
+            "status": "success",
+            "fetched_raw_count": len(raw_news),
+            "new_items_count": len(new_raw_items),
+            "processed_count": len(processed_news),
+            "upserted_count": upserted_count,
+            "timestamp": datetime.now(IST).isoformat(),
+            "message": f"Successfully processed {len(processed_news)} articles and upserted {upserted_count} into TABLE_NEWS."
+        }
+
     def load_news(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
         """
-        Loads news from Supabase.
-        date format input: dd-mm-yyyy (from frontend) -> convert to YYYY-MM-DD for DB
+        Loads news from Supabase TABLE_NEWS table.
+        date format input: dd-mm-yyyy (from frontend) -> query by datetime range.
+        If date is None, loads latest news ordered by priority desc / datetime desc.
         """
         if not self.supabase:
             print("Supabase client not initialized. Falling back to local news data.")
             return self._load_local_news()
 
-        if not date:
-            date = datetime.now(IST).strftime("%d-%m-%Y")
-            
-        # Convert dd-mm-yyyy to YYYY-MM-DD
         try:
-            dt = datetime.strptime(date, "%d-%m-%Y")
-            db_date = dt.strftime("%Y-%m-%d")
-        except ValueError:
-            print(f"Invalid date format: {date}")
-            return []
+            query = self.supabase.table("TABLE_NEWS").select("*")
+            if date:
+                try:
+                    dt = datetime.strptime(date, "%d-%m-%Y")
+                    db_date_start = dt.replace(hour=0, minute=0, second=0).isoformat()
+                    db_date_end = dt.replace(hour=23, minute=59, second=59).isoformat()
+                    query = query.gte("datetime", db_date_start).lte("datetime", db_date_end).order("priority", desc=True)
+                except ValueError:
+                    print(f"Invalid date format passed: {date}")
+                    return []
+            else:
+                # Fetch latest news sorted by priority desc and datetime desc
+                query = query.order("priority", desc=True).order("datetime", desc=True).limit(50)
 
-        try:
-            # Fetch news for the date, sorted by importance
-            # We can't easily sort by custom enum order in simple query, 
-            # so we'll fetch and sort in Python or use a case statement if using raw SQL.
-            # For now, fetch all and sort in Python.
-            response = self.supabase.table("news_items").select("*").eq("published_date", db_date).execute()
+            response = query.execute()
             news_data = response.data
+
+            if not news_data and date:
+                # Fallback: if no news for requested specific date, fetch latest overall
+                print(f"No TABLE_NEWS records for specified date {date}. Attempting latest fetch.")
+                fallback_res = self.supabase.table("TABLE_NEWS").select("*").order("priority", desc=True).order("datetime", desc=True).limit(50).execute()
+                news_data = fallback_res.data
+
             if not news_data:
-                print(f"No Supabase news for {db_date}. Falling back to GCS/local news data.")
-                gcs_news = self._load_gcs_news(db_date)
-                return gcs_news or self._load_local_news()
-            
-            # Map back to frontend expected format if needed (mostly same)
-            # Frontend expects 'relevance' but DB has 'relevance_tags'
+                print("No TABLE_NEWS records available in Supabase. Falling back to local news data.")
+                return self._load_local_news()
+
+            # Map retrieved TABLE_NEWS rows back to frontend expected properties
             mapped_news = []
             for item in news_data:
-                item['relevance'] = item.pop('relevance_tags', [])
-                item['date'] = datetime.strptime(item['published_date'], "%Y-%m-%d").strftime("%d-%m-%Y") # Back to dd-mm-yyyy
-                mapped_news.append(item)
+                priority_val = item.get("priority", 5)
+                importance = "High" if priority_val >= 7 else ("Medium" if priority_val >= 4 else "Low")
                 
-            # Sort by Importance
-            importance_map = {"High": 3, "Medium": 2, "Low": 1}
-            mapped_news.sort(key=lambda x: importance_map.get(x.get("importance", "Low"), 0), reverse=True)
-            
+                raw_dt = item.get("datetime", "")
+                date_str = ""
+                if raw_dt:
+                    try:
+                        parsed_dt = datetime.fromisoformat(raw_dt.replace("Z", "+00:00"))
+                        date_str = parsed_dt.strftime("%d-%m-%Y")
+                    except Exception:
+                        date_str = str(raw_dt)[:10]
+
+                mapped_item = {
+                    "id": str(item.get("id", "")),
+                    "title": item.get("title", ""),
+                    "summary": item.get("summary", ""),
+                    "description": item.get("summary", ""),
+                    "content": item.get("summary", ""),
+                    "category": item.get("category", "Polity"),
+                    "region": item.get("region", "National"),
+                    "source": item.get("source", ""),
+                    "source_url": item.get("source_url", ""),
+                    "link": item.get("source_url", ""),
+                    "image_url": item.get("image_url"),
+                    "priority": priority_val,
+                    "importance": importance,
+                    "datetime": raw_dt,
+                    "date": date_str,
+                    "relevance": [item.get("category", "UPSC"), item.get("region", "National")],
+                    "key_points": [item.get("summary", "")] if item.get("summary") else []
+                }
+                mapped_news.append(mapped_item)
+
+            mapped_news.sort(key=lambda x: x.get("priority", 5), reverse=True)
             return mapped_news
 
         except Exception as e:
-            print(f"Error loading news from Supabase: {e}")
-            gcs_news = self._load_gcs_news(db_date)
-            return gcs_news or self._load_local_news()
+            print(f"Error loading news from Supabase TABLE_NEWS: {e}")
+            return self._load_local_news()
 
     def _load_local_news(self) -> List[Dict[str, Any]]:
         """Load local sample news data when Supabase data is unavailable."""

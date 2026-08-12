@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api import news, quiz
+from api import news
 import os
 from dotenv import load_dotenv
 import tomllib
@@ -32,7 +32,6 @@ app.add_middleware(
 
 # Include routers
 app.include_router(news.router, prefix="/api", tags=["news"])
-app.include_router(quiz.router, prefix="/api", tags=["quiz"])
 
 @app.get("/")
 async def root():
