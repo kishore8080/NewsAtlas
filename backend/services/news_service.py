@@ -121,19 +121,21 @@ class NewsService:
         {json.dumps(raw_news)}
 
         Output Format:
-        Return a JSON array of objects with this exact schema:
-        [
-            {{
-                "title": "Concise Title",
-                "summary": "Comprehensive summary paragraph explaining the news event, background, and specific UPSC civil services exam relevance (50-80 words).",
-                "category": "One of: Polity, Economy, Environment, Science & Technology, International Relations, History, Geography, Social Issues",
-                "region": "National" | "International" | "State",
-                "source": "Source Name",
-                "source_url": "Direct link URL from raw news item",
-                "image_url": null,
-                "priority": 8
-            }}
-        ]
+        Return a JSON object with a "news" property containing an array of objects matching this exact schema:
+        {{
+            "news": [
+                {{
+                    "title": "Concise Title",
+                    "summary": "Comprehensive summary paragraph explaining the news event, background, and specific UPSC civil services exam relevance (50-80 words).",
+                    "category": "One of: Polity, Economy, Environment, Science & Technology, International Relations, History, Geography, Social Issues",
+                    "region": "National",
+                    "source": "Source Name",
+                    "source_url": "Direct link URL from raw news item",
+                    "image_url": null,
+                    "priority": 8
+                }}
+            ]
+        }}
         
         Guidelines:
         - "priority": Integer between 1 and 10 based on UPSC exam importance (10 = Critical core topic, 1 = Low relevance).
@@ -159,8 +161,45 @@ class NewsService:
             except Exception as e:
                 print(f"Provider {provider_name} failed: {e}. Trying next fallback...")
 
-        print("CRITICAL: All AI providers (Gemini, OpenAI, Groq) failed or hit quota limits.")
-        return []
+        print("CRITICAL: All AI providers (Gemini, OpenAI, Groq) failed or hit quota/key limits. Falling back to RSS direct formatting.")
+        return self._fallback_raw_to_news(raw_news)
+
+    def _fallback_raw_to_news(self, raw_news: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Fallback when AI processing is unavailable: format raw RSS news items directly for Supabase."""
+        formatted = []
+        for item in raw_news:
+            title = item.get("title", "").strip()
+            link = item.get("link", "").strip()
+            desc = item.get("description", "").strip()
+            if not title or not link:
+                continue
+
+            category = "Polity"
+            combined = (title + " " + desc).lower()
+            if any(k in combined for k in ["economy", "bank", "tax", "gdp", "rbi", "finance", "trade"]):
+                category = "Economy"
+            elif any(k in combined for k in ["environment", "climate", "forest", "pollution", "wildlife", "cop"]):
+                category = "Environment"
+            elif any(k in combined for k in ["tech", "space", "isro", "ai", "cyber", "science", "nasa"]):
+                category = "Science & Technology"
+            elif any(k in combined for k in ["china", "us", "russia", "un", "diplomacy", "bilateral", "global", "foreign"]):
+                category = "International Relations"
+            elif any(k in combined for k in ["court", "supreme court", "bill", "act", "parliament", "constitution", "election"]):
+                category = "Polity"
+
+            source = "The Hindu" if "thehindu" in link else ("Indian Express" if "indianexpress" in link else "News")
+
+            formatted.append({
+                "title": title,
+                "summary": desc[:300] if desc else title,
+                "category": category,
+                "region": "National",
+                "source": source,
+                "source_url": link,
+                "image_url": None,
+                "priority": 6
+            })
+        return formatted
 
     def _call_gemini_api(self, prompt: str) -> List[Dict[str, Any]]:
         key = os.getenv("GEMINI_API_KEY")
@@ -240,9 +279,12 @@ class NewsService:
         try:
             parsed = json.loads(content)
             if isinstance(parsed, dict):
-                for key in ["news", "items", "news_articles", "result", "articles", "response"]:
+                for key in ["news", "items", "news_articles", "result", "articles", "response", "data", "news_items"]:
                     if key in parsed and isinstance(parsed[key], list):
                         return parsed[key]
+                for val in parsed.values():
+                    if isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict):
+                        return val
                 if "title" in parsed:
                     return [parsed]
                 return []
