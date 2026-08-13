@@ -26,7 +26,7 @@ steps:
       - '--set-env-vars'
       - 'SUPABASE_URL=https://lucounujcuwuncxopbmq.supabase.co'
       - '--set-secrets'
-      - 'GEMINI_API_KEY=GEMINI_API_KEY:latest,GROQ_API_KEY=GROQ_API_KEY:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,SUPABASE_KEY=SUPABASE_KEY:latest'
+      - 'GEMINI_API_KEY=GEMINI_API_KEY:latest,GROQ_API_KEY=GROQ_API_KEY:latest,OPENAI_API_KEY=OPENAI_API_KEY:latest,SUPABASE_KEY=SUPABASE_KEY:latest,SUPABASE_SECRET_ROLE_KEY=SUPABASE_SECRET_ROLE_KEY:latest'
 
 images:
   - 'us-central1-docker.pkg.dev/protean-mind-243117/my-docker-repo/backend:$COMMIT_SHA'
