@@ -318,11 +318,11 @@ class NewsService:
                 "message": "No raw news found from RSS feeds."
             }
 
-        # 2. Deduplication check: Get existing source_urls from TABLE_NEWS
+        # 2. Deduplication check: Get existing source_urls from table_news
         existing_urls = set()
         if self.supabase:
             try:
-                res = self.supabase.table("TABLE_NEWS").select("source_url").execute()
+                res = self.supabase.table("table_news").select("source_url").execute()
                 if res.data:
                     existing_urls = {item['source_url'] for item in res.data if item.get('source_url')}
             except Exception as e:
@@ -388,19 +388,19 @@ class NewsService:
                 try:
                     # Attempt upsert with on_conflict
                     try:
-                        self.supabase.table("TABLE_NEWS").upsert(db_item, on_conflict="source_url").execute()
+                        self.supabase.table("table_news").upsert(db_item, on_conflict="source_url").execute()
                     except Exception:
                         # Fallback: attempt plain upsert or insert if on_conflict column spec fails
                         try:
-                            self.supabase.table("TABLE_NEWS").upsert(db_item).execute()
+                            self.supabase.table("table_news").upsert(db_item).execute()
                         except Exception:
-                            self.supabase.table("TABLE_NEWS").insert(db_item).execute()
+                            self.supabase.table("table_news").insert(db_item).execute()
 
                     upserted_count += 1
-                    print(f"Upserted to TABLE_NEWS: {item.get('title')}")
+                    print(f"Upserted to table_news: {item.get('title')}")
                 except Exception as e:
                     err_msg = f"Failed to save '{item.get('title')}': {str(e)}"
-                    print(f"Error saving item to TABLE_NEWS: {err_msg}")
+                    print(f"Error saving item to table_news: {err_msg}")
                     if len(upsert_errors) < 5:
                         upsert_errors.append(err_msg)
         else:
@@ -422,7 +422,7 @@ class NewsService:
             "processed_count": len(processed_news),
             "upserted_count": upserted_count,
             "timestamp": datetime.now(IST).isoformat(),
-            "message": f"Successfully processed {len(processed_news)} articles and upserted {upserted_count} into TABLE_NEWS."
+            "message": f"Successfully processed {len(processed_news)} articles and upserted {upserted_count} into table_news."
         }
         if upsert_errors:
             res_dict["errors"] = upsert_errors
@@ -440,7 +440,7 @@ class NewsService:
             return self._load_local_news()
 
         try:
-            query = self.supabase.table("TABLE_NEWS").select("*")
+            query = self.supabase.table("table_news").select("*")
             if date:
                 try:
                     dt = datetime.strptime(date, "%d-%m-%Y")
@@ -459,8 +459,8 @@ class NewsService:
 
             if not news_data and date:
                 # Fallback: if no news for requested specific date, fetch latest overall
-                print(f"No TABLE_NEWS records for specified date {date}. Attempting latest fetch.")
-                fallback_res = self.supabase.table("TABLE_NEWS").select("*").order("priority", desc=True).order("datetime", desc=True).limit(50).execute()
+                print(f"No table_news records for specified date {date}. Attempting latest fetch.")
+                fallback_res = self.supabase.table("table_news").select("*").order("priority", desc=True).order("datetime", desc=True).limit(50).execute()
                 news_data = fallback_res.data
 
             if not news_data:
