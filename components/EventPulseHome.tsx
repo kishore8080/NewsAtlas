@@ -10,7 +10,6 @@ import { EventTrackingPayload } from "@/lib/api-config";
 export default function EventPulseHome() {
   const router = useRouter();
   const [isTracking, setIsTracking] = useState<boolean>(false);
-  const [trackingMessages, setTrackingMessages] = useState<string[]>([]);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -22,18 +21,21 @@ export default function EventPulseHome() {
         isTracking: !isTracking
       };
 
-      setIsTracking(!isTracking);
-      const result = await trackEvents(payload);
-
-      setTrackingMessages((prev) => [
-        ...prev,
-        `${result.success ? 'Successfully' : 'Failed to'} ${payload.event}`
-      ].slice(-5));
+      setIsTracking(true);
+      // Fire tracking event
+      trackEvents(payload).catch((err) => console.warn("Tracking event logged:", err));
+      
+      // Navigate to the Global News Heatmap page (/current-affairs)
+      router.push('/current-affairs');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error occurred';
       setErrorMessage(message);
       setErrorModalOpen(true);
     }
+  };
+
+  const handleGlobeClick = () => {
+    router.push('/current-affairs');
   };
 
   useEffect(() => {
@@ -52,9 +54,9 @@ export default function EventPulseHome() {
       <main className="relative flex min-h-screen w-full flex-col items-center overflow-hidden bg-[#020710] font-[Inter,ui-sans-serif,system-ui,sans-serif] text-white antialiased">
         <section aria-label="Event pulse" className="flex w-full min-w-0 flex-col items-center px-6 pt-[clamp(160px,32vh,288px)] text-center">
           <button
-            onClick={() => router.push('/current-affairs')}
-            aria-label="Open global events"
-            className="group flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-full border border-[#34445c] bg-[#1d2a3d] shadow-[0_12px_30px_rgba(0,0,0,0.14)] transition duration-200 hover:border-[#667594] hover:bg-[#24334a] active:scale-95"
+            onClick={handleGlobeClick}
+            aria-label="Open global events heatmap"
+            className="group flex h-[120px] w-[120px] shrink-0 items-center justify-center rounded-full border border-[#34445c] bg-[#1d2a3d] shadow-[0_12px_30px_rgba(0,0,0,0.14)] transition duration-200 hover:border-[#667594] hover:bg-[#24334a] active:scale-95 cursor-pointer"
             title="Open global events heatmap"
             type="button"
           >
@@ -63,12 +65,12 @@ export default function EventPulseHome() {
 
           <button
             onClick={handleTrackClick}
-            aria-label={isTracking ? 'Stop tracking global events' : 'Track global events'}
-            className={`relative mt-12 flex h-[90px] w-[380px] max-w-[calc(100vw-48px)] items-center justify-center gap-4 rounded-[22px] px-8 text-[26px] font-semibold tracking-[-0.02em] text-white shadow-[0_18px_30px_rgba(71,49,255,0.25)] transition duration-200 hover:shadow-[0_20px_38px_rgba(71,49,255,0.34)] active:translate-y-px active:shadow-[0_10px_18px_rgba(71,49,255,0.22)] ${
+            aria-label={isTracking ? 'Tracking global events' : 'Track global events'}
+            className={`relative mt-12 flex h-[90px] w-[380px] max-w-[calc(100vw-48px)] items-center justify-center gap-4 rounded-[22px] px-8 text-[26px] font-semibold tracking-[-0.02em] text-white shadow-[0_18px_30px_rgba(71,49,255,0.25)] transition duration-200 hover:shadow-[0_20px_38px_rgba(71,49,255,0.34)] active:translate-y-px active:shadow-[0_10px_18px_rgba(71,49,255,0.22)] cursor-pointer ${
               isTracking ? 'bg-[#3f2be1]' : 'bg-[#4b35ff] hover:bg-[#5945ff]'
             }`}
             id="track-button"
-            title={isTracking ? 'Stop tracking global events' : 'Track global events'}
+            title={isTracking ? 'Tracking global events' : 'Track global events'}
             type="button"
           >
             <Zap aria-hidden="true" size={32} className="shrink-0 text-[#b9b1ff]" strokeWidth={2} />
@@ -80,19 +82,6 @@ export default function EventPulseHome() {
               }`}
             />
           </button>
-
-          {trackingMessages.length > 0 && (
-            <div className="mt-4 flex flex-col items-center gap-2">
-              {trackingMessages.slice(-3).map((msg, i) => (
-                <div
-                  key={i}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#1d2a3d]/70 text-[#8176ff] border border-[#34445c] backdrop-blur-sm shadow-sm"
-                >
-                  {msg}
-                </div>
-              ))}
-            </div>
-          )}
 
           <p className="mt-[50px] max-w-full text-[20px] font-normal leading-7 tracking-[-0.01em] text-[#4b5d79]">
             Track global events relevant to UPSC
