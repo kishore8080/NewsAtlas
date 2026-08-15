@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api import news
+from api import news, events
 import os
 from dotenv import load_dotenv
 import tomllib
@@ -32,6 +32,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(news.router, prefix="/api", tags=["news"])
+app.include_router(events.router, prefix="/api", tags=["events"])
 
 @app.get("/")
 async def root():
