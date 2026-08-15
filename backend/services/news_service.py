@@ -21,6 +21,8 @@ from google.cloud import storage
 from openai import OpenAI
 from supabase import create_client, Client
 
+from services.geocoding_service import GeocodingResolver
+
 # Load configuration
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "..", "config.toml")
 with open(CONFIG_PATH, "rb") as f:
@@ -51,6 +53,8 @@ class NewsService:
         else:
             print("Warning: SUPABASE_URL or SUPABASE_KEY environment variables missing.")
             self.supabase = None
+
+        self.geocoder = GeocodingResolver(supabase_client=self.supabase)
 
         self.bucket_name = config.get("storage", {}).get("bucket_name")
         self.storage_client = None
@@ -133,6 +137,11 @@ class NewsService:
                     "summary": "Comprehensive summary paragraph explaining the news event, background, and specific UPSC civil services exam relevance (50-80 words).",
                     "category": "One of: Polity, Economy, Environment, Science & Technology, International Relations, History, Geography, Social Issues",
                     "region": "National",
+                    "location": {{
+                        "city": "New Delhi",
+                        "admin_area": "Delhi",
+                        "country_code": "IN"
+                    }},
                     "source": "Source Name",
                     "source_url": "Direct link URL from raw news item",
                     "image_url": null,
@@ -142,9 +151,13 @@ class NewsService:
         }}
         
         Guidelines:
+        - "location": Must be a structured object containing:
+            - "city": Specific primary city name where the event occurred (or capital if national).
+            - "admin_area": State or province name.
+            - "country_code": ISO 3166-1 alpha-2 uppercase country code (e.g. "IN", "US", "GB", "CH", "JP").
         - "priority": Integer between 1 and 10 based on UPSC exam importance (10 = Critical core topic, 1 = Low relevance).
         - "category": Map accurately to UPSC GS syllabus topics.
-        - "region": Assign National, International, or State.
+        - "region": Keep as National, International, or State.
         - "source_url": Must be preserved accurately from the input raw news link.
         - Ensure content is educational, facts-driven, and neutral.
         """
@@ -165,11 +178,11 @@ class NewsService:
             except Exception as e:
                 print(f"Provider {provider_name} failed: {e}. Trying next fallback...")
 
-        print("CRITICAL: All AI providers (Gemini, OpenAI, Groq) failed or hit quota/key limits. Falling back to RSS direct formatting.")
+        print("CRITICAL: All AI providers failed. Falling back to RSS direct formatting.")
         return self._fallback_raw_to_news(raw_news)
 
     def _fallback_raw_to_news(self, raw_news: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Fallback when AI processing is unavailable: format raw RSS news items directly for Supabase."""
+        """Fallback when AI processing is unavailable: format raw RSS news items directly."""
         formatted = []
         for item in raw_news:
             title = item.get("title", "").strip()
@@ -180,16 +193,19 @@ class NewsService:
 
             category = "Polity"
             combined = (title + " " + desc).lower()
+            city, country_code = "New Delhi", "IN"
             if any(k in combined for k in ["economy", "bank", "tax", "gdp", "rbi", "finance", "trade"]):
                 category = "Economy"
+                city, country_code = "Mumbai", "IN"
             elif any(k in combined for k in ["environment", "climate", "forest", "pollution", "wildlife", "cop"]):
                 category = "Environment"
+                city, country_code = "Geneva", "CH"
             elif any(k in combined for k in ["tech", "space", "isro", "ai", "cyber", "science", "nasa"]):
                 category = "Science & Technology"
+                city, country_code = "Bengaluru", "IN"
             elif any(k in combined for k in ["china", "us", "russia", "un", "diplomacy", "bilateral", "global", "foreign"]):
                 category = "International Relations"
-            elif any(k in combined for k in ["court", "supreme court", "bill", "act", "parliament", "constitution", "election"]):
-                category = "Polity"
+                city, country_code = "Washington D.C.", "US"
 
             source = "The Hindu" if "thehindu" in link else ("Indian Express" if "indianexpress" in link else "News")
 
@@ -198,6 +214,11 @@ class NewsService:
                 "summary": desc[:300] if desc else title,
                 "category": category,
                 "region": "National",
+                "location": {
+                    "city": city,
+                    "admin_area": "",
+                    "country_code": country_code
+                },
                 "source": source,
                 "source_url": link,
                 "image_url": None,
@@ -251,7 +272,7 @@ class NewsService:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that outputs JSON."},
+                {"role": "system", "content": "You are a helpful assistant that outputs structured JSON."},
                 {"role": "user", "content": prompt}
             ],
             response_format={"type": "json_object"}
@@ -271,7 +292,7 @@ class NewsService:
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that outputs JSON."},
+                {"role": "system", "content": "You are a helpful assistant that outputs structured JSON."},
                 {"role": "user", "content": prompt}
             ],
             response_format={"type": "json_object"}
@@ -302,9 +323,7 @@ class NewsService:
 
     def refresh_daily_news(self) -> Dict[str, Any]:
         """
-        Fetches new news, processes with AI, and UPSERTS into Supabase TABLE_NEWS table.
-        Deduplication is handled by unique source_url constraint.
-        Returns execution metrics dict.
+        Fetches new news, processes with AI, resolves geocoding, and UPSERTS into Supabase TABLE_NEWS table.
         """
         print("Starting Supabase news refresh for TABLE_NEWS...")
         today_str = datetime.now(IST).strftime("%Y-%m-%d")
@@ -346,7 +365,7 @@ class NewsService:
             }
 
         # 3. Process with AI
-        print(f"Sending {len(new_raw_items)} items to OpenAI...")
+        print(f"Sending {len(new_raw_items)} items to AI processing...")
         processed_news = self.process_news_with_ai(new_raw_items)
         
         if not processed_news:
@@ -361,7 +380,7 @@ class NewsService:
 
         print(f"AI returned {len(processed_news)} items.")
 
-        # 4. Save to Supabase TABLE_NEWS
+        # 4. Resolve Geocoding and Save to Supabase TABLE_NEWS
         upserted_count = 0
         upsert_errors = []
 
@@ -377,6 +396,15 @@ class NewsService:
                 except (ValueError, TypeError):
                     priority = 5
 
+                # Extract location object from AI response
+                loc_obj = item.get("location") if isinstance(item.get("location"), dict) else {}
+                city = loc_obj.get("city") or item.get("location_name") or item.get("city")
+                admin_area = loc_obj.get("admin_area")
+                country_code = loc_obj.get("country_code") or item.get("country_code")
+
+                # Resolve geocoding via GeocodingResolver (Cache -> API -> Centroid fallback)
+                geo_res = self.geocoder.resolve_location(city, admin_area, country_code)
+
                 db_item = {
                     "datetime": datetime.now(IST).isoformat(),
                     "title": item.get("title", "UPSC News Update"),
@@ -386,22 +414,24 @@ class NewsService:
                     "source": item.get("source", "The Hindu"),
                     "source_url": source_url,
                     "image_url": item.get("image_url"),
-                    "priority": priority
+                    "priority": priority,
+                    "latitude": geo_res["latitude"],
+                    "longitude": geo_res["longitude"],
+                    "location_name": geo_res["location_name"],
+                    "country_code": geo_res["country_code"]
                 }
                 
                 try:
-                    # Attempt upsert with on_conflict
                     try:
                         self.supabase.table("table_news").upsert(db_item, on_conflict="source_url").execute()
                     except Exception:
-                        # Fallback: attempt plain upsert or insert if on_conflict column spec fails
                         try:
                             self.supabase.table("table_news").upsert(db_item).execute()
                         except Exception:
                             self.supabase.table("table_news").insert(db_item).execute()
 
                     upserted_count += 1
-                    print(f"Upserted to table_news: {item.get('title')}")
+                    print(f"Upserted to table_news: '{item.get('title')}' -> {geo_res['location_name']} ({geo_res['latitude']}, {geo_res['longitude']}) [{geo_res['source']}]")
                 except Exception as e:
                     err_msg = f"Failed to save '{item.get('title')}': {str(e)}"
                     print(f"Error saving item to table_news: {err_msg}")
@@ -411,12 +441,6 @@ class NewsService:
             err_msg = "Supabase client not initialized. Ensure SUPABASE_URL and SUPABASE_KEY are set."
             print(f"CRITICAL: {err_msg}")
             upsert_errors.append(err_msg)
-
-        # 5. Write news file to GCS (if configured)
-        if self.storage_client and self.bucket_name:
-            self._write_gcs_news(processed_news, today_str)
-        else:
-            print("GCS not configured or unavailable. Skipping file upload.")
 
         res_status = "success" if upserted_count > 0 else ("warning" if upsert_errors else "success")
         res_dict = {
@@ -436,8 +460,6 @@ class NewsService:
     def load_news(self, date: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Loads news from Supabase TABLE_NEWS table.
-        date format input: dd-mm-yyyy (from frontend) -> query by datetime range.
-        If date is None, loads latest news ordered by priority desc / datetime desc.
         """
         if not self.supabase:
             print("Supabase client not initialized. Falling back to local news data.")
@@ -455,14 +477,12 @@ class NewsService:
                     print(f"Invalid date format passed: {date}")
                     return []
             else:
-                # Fetch latest news sorted by priority desc and datetime desc
                 query = query.order("priority", desc=True).order("datetime", desc=True).limit(50)
 
             response = query.execute()
             news_data = response.data
 
             if not news_data and date:
-                # Fallback: if no news for requested specific date, fetch latest overall
                 print(f"No table_news records for specified date {date}. Attempting latest fetch.")
                 fallback_res = self.supabase.table("table_news").select("*").order("priority", desc=True).order("datetime", desc=True).limit(50).execute()
                 news_data = fallback_res.data
@@ -471,7 +491,6 @@ class NewsService:
                 print("No TABLE_NEWS records available in Supabase. Falling back to local news data.")
                 return self._load_local_news()
 
-            # Map retrieved TABLE_NEWS rows back to frontend expected properties
             mapped_news = []
             for item in news_data:
                 priority_val = item.get("priority", 5)
@@ -494,12 +513,16 @@ class NewsService:
                     "content": item.get("summary", ""),
                     "category": item.get("category", "Polity"),
                     "region": item.get("region", "National"),
+                    "location_name": item.get("location_name"),
+                    "country_code": item.get("country_code"),
                     "source": item.get("source", ""),
                     "source_url": item.get("source_url", ""),
                     "link": item.get("source_url", ""),
                     "image_url": item.get("image_url"),
                     "priority": priority_val,
                     "importance": importance,
+                    "latitude": item.get("latitude"),
+                    "longitude": item.get("longitude"),
                     "datetime": raw_dt,
                     "date": date_str,
                     "relevance": [item.get("category", "UPSC"), item.get("region", "National")],
@@ -532,78 +555,4 @@ class NewsService:
             return mapped_news
         except Exception as e:
             print(f"Error loading local news data: {e}")
-            return []
-
-    def _write_gcs_news(self, news_items: List[Dict[str, Any]], today_str: str):
-        """Write a timestamped news file to GCS in a year/month folder."""
-        if not self.storage_client or not self.bucket_name:
-            return
-
-        try:
-            dt = datetime.strptime(today_str, "%Y-%m-%d")
-            year = dt.strftime("%Y")
-            month = dt.strftime("%B")
-            day = dt.strftime("%d-%m-%Y")
-            prefix = f"news-data/{year}/{month}/"
-
-            bucket = self.storage_client.bucket(self.bucket_name)
-            blobs = list(self.storage_client.list_blobs(self.bucket_name, prefix=prefix))
-            existing_files = [blob.name for blob in blobs if blob.name.startswith(prefix) and blob.name.endswith('.json') and day in blob.name]
-            next_index = len(existing_files) + 1
-            filename = f"{day}-data-{next_index:02d}.json"
-            object_name = prefix + filename
-
-            blob = bucket.blob(object_name)
-            blob.upload_from_string(
-                json.dumps(news_items, ensure_ascii=False, indent=2),
-                content_type="application/json"
-            )
-            print(f"Uploaded news file to GCS: {object_name}")
-        except Exception as e:
-            print(f"Error writing news file to GCS: {e}")
-
-    def _load_gcs_news(self, db_date: str) -> List[Dict[str, Any]]:
-        """Load news data from GCS bucket if available."""
-        if not self.storage_client or not self.bucket_name:
-            return []
-
-        try:
-            dt = datetime.strptime(db_date, "%Y-%m-%d")
-            year = dt.strftime("%Y")
-            month = dt.strftime("%B")
-            day = dt.strftime("%d-%m-%Y")
-            prefix = f"news-data/{year}/{month}/"
-            blobs = list(self.storage_client.list_blobs(self.bucket_name, prefix=prefix))
-            matched_news = []
-
-            for blob in blobs:
-                if not blob.name.startswith(prefix):
-                    continue
-                if dt.strftime("%d-%m-%Y") not in blob.name:
-                    continue
-
-                content = blob.download_as_text(encoding="utf-8")
-                try:
-                    data = json.loads(content)
-                except json.JSONDecodeError:
-                    print(f"Invalid JSON in GCS object: {blob.name}")
-                    continue
-
-                if isinstance(data, list):
-                    matched_news.extend(data)
-                elif isinstance(data, dict):
-                    matched_news.append(data)
-
-            if not matched_news:
-                return []
-
-            for item in matched_news:
-                item['relevance'] = item.get('relevance', [])
-                item['date'] = item.get('date', item.get('published_date', dt.strftime('%Y-%m-%d')))
-
-            importance_map = {"High": 3, "Medium": 2, "Low": 1}
-            matched_news.sort(key=lambda x: importance_map.get(x.get("importance", "Low"), 0), reverse=True)
-            return matched_news
-        except Exception as e:
-            print(f"Error loading news from GCS: {e}")
             return []
