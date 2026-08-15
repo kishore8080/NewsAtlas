@@ -37,13 +37,16 @@ function FitMarkers({ markers }: { markers: HeatmapMarker[] }) {
   const map = useMap();
 
   useEffect(() => {
+    // Invalidate map size to fill full screen container when loaded
+    map.invalidateSize();
+
     if (markers.length === 0) {
-      map.setView([20, 0], 2, { animate: false });
+      map.setView([20, 0], 2.5, { animate: false });
       return;
     }
 
     if (markers.length === 1) {
-      map.setView([markers[0].latitude, markers[0].longitude], 3, { animate: false });
+      map.setView([markers[0].latitude, markers[0].longitude], 4, { animate: false });
       return;
     }
 
@@ -51,9 +54,9 @@ function FitMarkers({ markers }: { markers: HeatmapMarker[] }) {
       markers.map((marker) => [marker.latitude, marker.longitude] as [number, number]),
     );
 
-    map.fitBounds(bounds.pad(0.35), {
+    map.fitBounds(bounds.pad(0.2), {
       animate: false,
-      maxZoom: 3,
+      maxZoom: 4,
     });
   }, [map, markers]);
 
@@ -86,20 +89,20 @@ export default function LeafletHeatmap({
         [-85, -180],
         [85, 180],
       ]}
-      maxBoundsViscosity={1}
-      maxZoom={6}
+      maxBoundsViscosity={0.8}
+      maxZoom={10}
       minZoom={2}
       scrollWheelZoom
-      zoom={2}
+      zoom={2.5}
       worldCopyJump
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
         eventHandlers={{
           tileerror: onTileError,
           tileload: onTileLoad,
         }}
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
 
       <FitMarkers markers={markers} />
