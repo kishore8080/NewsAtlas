@@ -6,11 +6,13 @@ import {
   Marker,
   Popup,
   TileLayer,
+  GeoJSON,
   useMap,
 } from "react-leaflet";
 import { useEffect, useMemo } from "react";
-import type { HeatmapMarker } from "@/lib/heatmap";
+import type { HeatmapMarker, HeatmapSeverity } from "@/lib/heatmap";
 import { getSeverityLabel } from "@/lib/heatmap";
+import { indiaBoundaryGeoJSON } from "@/lib/india-boundary";
 
 type LeafletHeatmapProps = {
   markers: HeatmapMarker[];
@@ -20,12 +22,26 @@ type LeafletHeatmapProps = {
   onTileLoad: () => void;
 };
 
+type MarkerClusterGroup = {
+  clusterId: string;
+  latitude: number;
+  longitude: number;
+  markers: HeatmapMarker[];
+  maxSeverity: HeatmapSeverity;
+};
+
+const severityRank: Record<HeatmapSeverity, number> = {
+  "very-high": 4,
+  high: 3,
+  moderate: 2,
+  low: 1,
+};
+
 function createMarkerIcon(marker: HeatmapMarker, isSelected: boolean) {
   const selectedClass = isSelected ? " is-selected" : "";
   let markerHtml = "";
 
   if (marker.severity === "very-high" || marker.severity === "high") {
-    // White location pin with inner blue dot matching screenshot
     markerHtml = `
       <div class="custom-map-pin ${selectedClass}">
         <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg" class="filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)]">
@@ -35,7 +51,6 @@ function createMarkerIcon(marker: HeatmapMarker, isSelected: boolean) {
       </div>
     `;
   } else if (marker.severity === "moderate") {
-    // White target concentric circle pin
     markerHtml = `
       <div class="custom-map-target ${selectedClass}">
         <div class="w-6 h-6 rounded-full border-2 border-white bg-white/30 flex items-center justify-center shadow-lg">
@@ -44,7 +59,6 @@ function createMarkerIcon(marker: HeatmapMarker, isSelected: boolean) {
       </div>
     `;
   } else {
-    // White flag pin
     markerHtml = `
       <div class="custom-map-flag ${selectedClass}">
         <div class="w-6 h-6 rounded-full bg-white text-[#0f1826] flex items-center justify-center shadow-md border border-white/80">
@@ -66,6 +80,33 @@ function createMarkerIcon(marker: HeatmapMarker, isSelected: boolean) {
   });
 }
 
+function createClusterIcon(count: number, maxSeverity: HeatmapSeverity, isSelected: boolean) {
+  const selectedClass = isSelected ? " is-selected ring-4 ring-white" : "";
+  let badgeColorClass = "bg-[#317cf0] shadow-[0_0_12px_rgba(49,124,240,0.6)]";
+
+  if (maxSeverity === "very-high") {
+    badgeColorClass = "bg-[#ff3345] shadow-[0_0_15px_rgba(255,51,69,0.8)]";
+  } else if (maxSeverity === "high") {
+    badgeColorClass = "bg-[#ff7900] shadow-[0_0_14px_rgba(255,121,0,0.7)]";
+  } else if (maxSeverity === "low") {
+    badgeColorClass = "bg-[#14b9aa] shadow-[0_0_10px_rgba(20,185,170,0.5)]";
+  }
+
+  const html = `
+    <div class="custom-cluster-badge ${badgeColorClass} ${selectedClass} w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold text-white transition-transform duration-200 hover:scale-110">
+      ${count}
+    </div>
+  `;
+
+  return L.divIcon({
+    className: "custom-leaflet-cluster-icon",
+    html,
+    iconAnchor: [16, 16],
+    iconSize: [32, 32],
+    popupAnchor: [0, -16],
+  });
+}
+
 function FitMarkers({ markers }: { markers: HeatmapMarker[] }) {
   const map = useMap();
 
@@ -73,7 +114,7 @@ function FitMarkers({ markers }: { markers: HeatmapMarker[] }) {
     map.invalidateSize();
 
     if (markers.length === 0) {
-      map.setView([20, 0], 2.5, { animate: false });
+      map.setView([22.5, 78.5], 4, { animate: false });
       return;
     }
 
@@ -88,7 +129,7 @@ function FitMarkers({ markers }: { markers: HeatmapMarker[] }) {
 
     map.fitBounds(bounds.pad(0.2), {
       animate: false,
-      maxZoom: 4,
+      maxZoom: 5,
     });
   }, [map, markers]);
 
@@ -102,20 +143,41 @@ export default function LeafletHeatmap({
   onTileError,
   onTileLoad,
 }: LeafletHeatmapProps) {
-  const markerIcons = useMemo(
-    () =>
-      new Map(
-        markers.map((marker) => [
-          `${marker.id}:${marker.id === selectedMarkerId ? "selected" : "default"}`,
-          createMarkerIcon(marker, marker.id === selectedMarkerId),
-        ]),
-      ),
-    [markers, selectedMarkerId],
-  );
+  // Cluster co-located pins (within 0.15 degrees)
+  const clusters = useMemo(() => {
+    const groups: MarkerClusterGroup[] = [];
+
+    markers.forEach((marker) => {
+      let found = false;
+      for (const group of groups) {
+        const dLat = Math.abs(group.latitude - marker.latitude);
+        const dLng = Math.abs(group.longitude - marker.longitude);
+        if (dLat < 0.15 && dLng < 0.15) {
+          group.markers.push(marker);
+          if (severityRank[marker.severity] > severityRank[group.maxSeverity]) {
+            group.maxSeverity = marker.severity;
+          }
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        groups.push({
+          clusterId: `cluster-${marker.id}`,
+          latitude: marker.latitude,
+          longitude: marker.longitude,
+          markers: [marker],
+          maxSeverity: marker.severity,
+        });
+      }
+    });
+
+    return groups;
+  }, [markers]);
 
   return (
     <MapContainer
-      center={[20, 0]}
+      center={[22.5, 78.5]}
       className="heatmap-leaflet-map"
       maxBounds={[
         [-85, -180],
@@ -125,7 +187,7 @@ export default function LeafletHeatmap({
       maxZoom={10}
       minZoom={2}
       scrollWheelZoom
-      zoom={2.5}
+      zoom={4}
       worldCopyJump
     >
       <TileLayer
@@ -137,41 +199,90 @@ export default function LeafletHeatmap({
         url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
       />
 
+      {/* Official India Territory Layer (including J&K, Ladakh, PoK, Gilgit-Baltistan & Aksai Chin) */}
+      <GeoJSON
+        data={indiaBoundaryGeoJSON as any}
+        style={{
+          color: "#96b8e8",
+          weight: 2.2,
+          opacity: 0.95,
+          fillColor: "#5e81b4",
+          fillOpacity: 0.9,
+        }}
+      />
+
       <FitMarkers markers={markers} />
 
-      {markers.map((marker) => {
-        const iconKey = `${marker.id}:${marker.id === selectedMarkerId ? "selected" : "default"}`;
-        const markerTitle = `${marker.label} · ${getSeverityLabel(marker.severity)} activity`;
+      {clusters.map((cluster) => {
+        const isCluster = cluster.markers.length > 1;
+        const primaryMarker = cluster.markers[0];
+        const hasSelected = cluster.markers.some((m) => m.id === selectedMarkerId);
+
+        if (!isCluster) {
+          const markerTitle = `${primaryMarker.label} · ${getSeverityLabel(primaryMarker.severity)} activity`;
+          const icon = createMarkerIcon(primaryMarker, hasSelected);
+
+          return (
+            <Marker
+              alt={`View ${markerTitle}`}
+              eventHandlers={{
+                click: () => onSelectMarker(primaryMarker),
+              }}
+              icon={icon}
+              key={primaryMarker.id}
+              position={[primaryMarker.latitude, primaryMarker.longitude]}
+              title={markerTitle}
+            >
+              <Popup closeButton>
+                <article className="heatmap-popup">
+                  <p className="heatmap-popup-kicker text-[#5e81b4]">
+                    {primaryMarker.label} · {getSeverityLabel(primaryMarker.severity)} activity
+                  </p>
+                  <h2 className="heatmap-popup-title">{primaryMarker.news.title}</h2>
+                  <p className="heatmap-popup-description">{primaryMarker.news.description}</p>
+                  <p className="heatmap-popup-meta">
+                    {primaryMarker.news.source} · {primaryMarker.news.date}
+                  </p>
+                </article>
+              </Popup>
+            </Marker>
+          );
+        }
+
+        // Render Co-Located Cluster Marker Badge
+        const clusterIcon = createClusterIcon(cluster.markers.length, cluster.maxSeverity, hasSelected);
 
         return (
           <Marker
-            alt={`View ${markerTitle}`}
+            alt={`View ${cluster.markers.length} events at ${primaryMarker.label}`}
             eventHandlers={{
-              click: () => onSelectMarker(marker),
-              keypress: (event) => {
-                const key = (event.originalEvent as KeyboardEvent).key;
-                if (key === "Enter" || key === " ") {
-                  event.originalEvent.preventDefault();
-                  onSelectMarker(marker);
-                }
-              },
+              click: () => onSelectMarker(primaryMarker),
             }}
-            icon={markerIcons.get(iconKey)}
-            keyboard
-            key={marker.id}
-            position={[marker.latitude, marker.longitude]}
-            title={markerTitle}
+            icon={clusterIcon}
+            key={cluster.clusterId}
+            position={[cluster.latitude, cluster.longitude]}
+            title={`${cluster.markers.length} news events at ${primaryMarker.label}`}
           >
             <Popup closeButton>
-              <article className="heatmap-popup">
-                <p className="heatmap-popup-kicker text-[#5e81b4]">
-                  {marker.label} · {getSeverityLabel(marker.severity)} activity
+              <article className="heatmap-popup max-h-60 overflow-y-auto">
+                <p className="heatmap-popup-kicker text-[#5e81b4] mb-2 font-bold">
+                  {cluster.markers.length} News Events at {primaryMarker.label}
                 </p>
-                <h2 className="heatmap-popup-title">{marker.news.title}</h2>
-                <p className="heatmap-popup-description">{marker.news.description}</p>
-                <p className="heatmap-popup-meta">
-                  {marker.news.source} · {marker.news.date}
-                </p>
+                <div className="flex flex-col gap-3 divide-y divide-slate-700">
+                  {cluster.markers.map((m) => (
+                    <div
+                      key={m.id}
+                      className="pt-2 cursor-pointer hover:text-blue-300"
+                      onClick={() => onSelectMarker(m)}
+                    >
+                      <span className="text-xs font-semibold text-[#8176ff]">
+                        [{getSeverityLabel(m.severity)}]
+                      </span>
+                      <h3 className="text-sm font-semibold text-white mt-0.5">{m.news.title}</h3>
+                      <p className="text-xs text-slate-400 line-clamp-2 mt-1">{m.news.description}</p>
+                    </div>
+                  ))}
+                </div>
               </article>
             </Popup>
           </Marker>
