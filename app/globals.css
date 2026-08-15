@@ -207,7 +207,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: #020711;
+    background: #0f1826;
     color: var(--event-text);
   }
 
@@ -216,7 +216,7 @@
     inset: 0 0 auto;
     z-index: 30;
     height: 4px;
-    background: #292d38;
+    background: #24344d;
   }
 
   .heatmap-preview-badge {
@@ -225,10 +225,10 @@
     left: 0;
     z-index: 40;
     padding: 0.25rem 0.5rem;
-    border-right: 1px solid #313643;
-    border-bottom: 1px solid #313643;
+    border-right: 1px solid #314666;
+    border-bottom: 1px solid #314666;
     border-radius: 0 0 0.5rem 0;
-    background: #34373d;
+    background: #19273c;
     color: #f3f4f6;
     font-size: 0.75rem;
     font-weight: 500;
@@ -245,8 +245,8 @@
     justify-content: space-between;
     gap: 1.5rem;
     padding: 0.25rem 2rem 0;
-    border-bottom: 1px solid var(--event-divider);
-    background: var(--event-header);
+    border-bottom: 1px solid #1c2b42;
+    background: #0d1522;
     flex-shrink: 0;
   }
 
@@ -280,12 +280,12 @@
     align-items: center;
     justify-content: center;
     border-radius: 0.5rem;
-    color: #8791a8;
+    color: #8aaad4;
     transition: background-color 180ms ease, color 180ms ease;
   }
 
   .heatmap-back-button:hover {
-    background: #111a2b;
+    background: #19273c;
     color: white;
   }
 
@@ -296,7 +296,7 @@
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    color: #8b7cff;
+    color: #688bbd;
   }
 
   .heatmap-title {
@@ -313,7 +313,7 @@
   .heatmap-legend {
     flex-wrap: wrap;
     gap: 0.5rem 1.25rem;
-    color: var(--event-header-muted);
+    color: #8aaad4;
     font-size: 1rem;
   }
 
@@ -329,26 +329,27 @@
   }
 
   .heatmap-legend-dot-very-high {
-    background: var(--event-legend-very-high);
+    background: #ffffff;
+    box-shadow: 0 0 0 2px #5e81b4;
   }
 
   .heatmap-legend-dot-high {
-    background: var(--event-legend-high);
+    background: #ffffff;
   }
 
   .heatmap-legend-dot-moderate {
-    background: var(--event-legend-moderate);
+    background: #688bbd;
   }
 
   .heatmap-legend-dot-low {
-    background: var(--event-legend-low);
+    background: #8aaad4;
   }
 
   .heatmap-status-button {
-    border: 1px solid var(--event-pill-border);
+    border: 1px solid #243854;
     border-radius: 0.75rem;
-    background: var(--event-pill);
-    color: var(--event-pill-text);
+    background: #152236;
+    color: #8aaad4;
     padding: 0.5rem 0.75rem;
     font-size: 1rem;
     box-shadow: 0 1px 2px rgb(0 0 0 / 14%);
@@ -357,9 +358,9 @@
 
   .heatmap-status-button:hover,
   .heatmap-status-button[aria-expanded='true'] {
-    border-color: #3d4d69;
-    background: #17233a;
-    color: #a9b6d0;
+    border-color: #5e81b4;
+    background: #1c2d47;
+    color: white;
   }
 
   .heatmap-filter-panel {
@@ -369,15 +370,15 @@
     z-index: 50;
     width: min(18rem, calc(100vw - 2rem));
     padding: 0.875rem;
-    border: 1px solid #263650;
+    border: 1px solid #283d5e;
     border-radius: 0.875rem;
-    background: #091224;
-    box-shadow: 0 18px 35px rgb(0 0 0 / 35%);
+    background: #0f1826;
+    box-shadow: 0 18px 35px rgb(0 0 0 / 45%);
   }
 
   .heatmap-filter-title {
     margin-bottom: 0.75rem;
-    color: #d7deed;
+    color: #8aaad4;
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.08em;
@@ -392,10 +393,10 @@
   }
 
   .heatmap-filter-mode {
-    border: 1px solid #24324a;
+    border: 1px solid #243854;
     border-radius: 0.5rem;
-    background: #111a2b;
-    color: #8690a7;
+    background: #152236;
+    color: #8aaad4;
     padding: 0.5rem 0.625rem;
     font-size: 0.8125rem;
     transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
@@ -403,23 +404,23 @@
 
   .heatmap-filter-mode:hover,
   .heatmap-filter-mode.is-active {
-    border-color: #8176ff;
-    background: #1d2a3d;
+    border-color: #688bbd;
+    background: #1c2d47;
     color: white;
   }
 
   .heatmap-filter-label {
     display: grid;
     gap: 0.375rem;
-    color: #8690a7;
+    color: #8aaad4;
     font-size: 0.75rem;
   }
 
   .heatmap-filter-input {
     width: 100%;
-    border: 1px solid #24324a;
+    border: 1px solid #243854;
     border-radius: 0.5rem;
-    background: #111a2b;
+    background: #152236;
     color: #f8fafc;
     padding: 0.5rem 0.625rem;
     font-size: 0.8125rem;
@@ -439,40 +440,54 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: #020711;
+    background: #0f1826;
     border: none;
   }
 
   .heatmap-leaflet-map {
     width: 100%;
     height: 100%;
-    background: #020711;
+    background: #0f1826;
     font-family: var(--font-ui);
   }
 
   .heatmap-leaflet-map .leaflet-tile-pane {
-    filter: brightness(0.58) saturate(0.78) contrast(1.08);
+    filter: sepia(0.85) hue-rotate(185deg) saturate(2.4) brightness(0.92) contrast(1.18);
+  }
+
+  .custom-leaflet-marker {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .custom-map-pin, .custom-map-target, .custom-map-flag {
+    transition: transform 200ms ease;
+  }
+
+  .custom-map-pin:hover, .custom-map-target:hover, .custom-map-flag:hover,
+  .custom-map-pin.is-selected, .custom-map-target.is-selected, .custom-map-flag.is-selected {
+    transform: scale(1.25);
   }
 
   .heatmap-leaflet-map .leaflet-control-zoom {
     overflow: hidden;
-    border: 1px solid var(--event-pill-border);
+    border: 1px solid #243854;
     border-radius: 0.625rem;
-    box-shadow: 0 5px 14px rgb(0 0 0 / 28%);
+    box-shadow: 0 5px 14px rgb(0 0 0 / 35%);
   }
 
   .heatmap-leaflet-map .leaflet-control-zoom a {
     width: 2rem;
     height: 2rem;
     border: 0;
-    background: rgb(4 9 23 / 88%);
-    color: var(--event-text);
+    background: #0d1522;
+    color: #f8fafc;
     line-height: 2rem;
     transition: background-color 180ms ease, color 180ms ease;
   }
 
   .heatmap-leaflet-map .leaflet-control-zoom a:hover {
-    background: #17233a;
+    background: #1c2d47;
     color: white;
   }
 
