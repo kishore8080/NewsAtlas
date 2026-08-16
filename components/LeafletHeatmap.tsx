@@ -206,6 +206,7 @@ export default function LeafletHeatmap({
           color: "#60a5fa",
           weight: 2.2,
           opacity: 0.95,
+          dashArray: "4, 6",
           fillColor: "transparent",
           fillOpacity: 0,
         }}
