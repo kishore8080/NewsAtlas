@@ -4,7 +4,7 @@ export const indiaBoundaryGeoJSON = {
     {
       type: "Feature" as const,
       properties: {
-        name: "India Mainland (Official Boundary including J&K, PoK, Ladakh, and Aksai Chin)",
+        name: "India Official Boundary (including J&K, PoK, Gilgit-Baltistan, Ladakh, and Aksai Chin)",
       },
       geometry: {
         type: "Polygon" as const,
@@ -21,19 +21,24 @@ export const indiaBoundaryGeoJSON = {
             [73.5, 29.8],
             [74.4, 31.0],
             [74.6, 31.8],
-            [74.8, 32.5],
-            [73.9, 33.2],
-            [73.4, 34.0],
+            [74.75, 32.5],
+            [74.5, 32.8],
+            [74.1, 33.0],
+            [73.9, 33.3],
+            [73.6, 33.8],
+            [73.4, 34.2],
             [73.2, 34.8],
-            [73.5, 35.5],
-            [74.2, 36.2],
+            [73.3, 35.3],
+            [73.8, 35.8],
+            [74.3, 36.3],
             [74.6, 37.1],
-            [75.5, 36.8],
-            [76.5, 35.9],
-            [77.8, 35.6],
-            [79.6, 35.5],
-            [79.7, 34.5],
-            [78.9, 33.6],
+            [75.4, 36.8],
+            [76.3, 36.1],
+            [77.2, 35.6],
+            [78.0, 35.5],
+            [79.6, 35.4],
+            [79.6, 34.4],
+            [78.9, 33.7],
             [79.5, 32.7],
             [78.6, 32.0],
             [79.0, 31.5],
@@ -87,43 +92,6 @@ export const indiaBoundaryGeoJSON = {
           ]
         ]
       }
-    },
-    {
-      type: "Feature" as const,
-      properties: {
-        name: "Andaman and Nicobar Islands",
-      },
-      geometry: {
-        type: "Polygon" as const,
-        coordinates: [
-          [
-            [92.6, 6.7],
-            [93.9, 6.7],
-            [93.1, 13.7],
-            [92.6, 13.7],
-            [92.6, 6.7]
-          ]
-        ]
-      }
-    },
-    {
-      type: "Feature" as const,
-      properties: {
-        name: "Lakshadweep",
-      },
-      geometry: {
-        type: "Polygon" as const,
-        coordinates: [
-          [
-            [71.8, 8.2],
-            [73.8, 8.2],
-            [73.8, 12.4],
-            [71.8, 12.4],
-            [71.8, 8.2]
-          ]
-        ]
-      }
     }
   ]
 };
-

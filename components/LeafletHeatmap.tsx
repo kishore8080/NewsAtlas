@@ -6,11 +6,13 @@ import {
   Marker,
   Popup,
   TileLayer,
+  GeoJSON,
   useMap,
 } from "react-leaflet";
 import { useEffect, useMemo } from "react";
 import type { HeatmapMarker, HeatmapSeverity } from "@/lib/heatmap";
 import { getSeverityLabel } from "@/lib/heatmap";
+import { indiaBoundaryGeoJSON } from "@/lib/india-boundary";
 
 type LeafletHeatmapProps = {
   markers: HeatmapMarker[];
@@ -195,6 +197,18 @@ export default function LeafletHeatmap({
           tileload: onTileLoad,
         }}
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+      />
+
+      {/* Official Indian Boundary Line Overlay (enclosing J&K, PoK, Gilgit-Baltistan, Ladakh, and Aksai Chin) */}
+      <GeoJSON
+        data={indiaBoundaryGeoJSON as any}
+        style={{
+          color: "#60a5fa",
+          weight: 2.2,
+          opacity: 0.95,
+          fillColor: "transparent",
+          fillOpacity: 0,
+        }}
       />
 
       <FitMarkers markers={markers} />
