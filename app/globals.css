@@ -329,20 +329,29 @@
   }
 
   .heatmap-legend-dot-very-high {
-    background: #ffffff;
-    box-shadow: 0 0 0 2px #5e81b4;
+    background: #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+    width: 14px;
+    height: 14px;
   }
 
   .heatmap-legend-dot-high {
-    background: #ffffff;
+    background: #f87171;
+    box-shadow: 0 0 6px rgba(248, 113, 113, 0.6);
+    width: 11px;
+    height: 11px;
   }
 
   .heatmap-legend-dot-moderate {
-    background: #688bbd;
+    background: #fca5a5;
+    width: 9px;
+    height: 9px;
   }
 
   .heatmap-legend-dot-low {
-    background: #8aaad4;
+    background: #ef4444;
+    width: 6px;
+    height: 6px;
   }
 
   .heatmap-status-button {

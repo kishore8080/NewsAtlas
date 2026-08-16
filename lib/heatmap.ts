@@ -33,10 +33,10 @@ export interface HeatmapLegendItem {
 }
 
 export const heatmapLegend: HeatmapLegendItem[] = [
-  { severity: "very-high", label: "Very High", dotClassName: "heatmap-legend-dot-very-high" },
-  { severity: "high", label: "High", dotClassName: "heatmap-legend-dot-high" },
-  { severity: "moderate", label: "Moderate", dotClassName: "heatmap-legend-dot-moderate" },
-  { severity: "low", label: "Low", dotClassName: "heatmap-legend-dot-low" },
+  { severity: "very-high", label: "Happening News", dotClassName: "heatmap-legend-dot-very-high" },
+  { severity: "high", label: "Important News", dotClassName: "heatmap-legend-dot-high" },
+  { severity: "moderate", label: "Good to Know", dotClassName: "heatmap-legend-dot-moderate" },
+  { severity: "low", label: "Low Priority", dotClassName: "heatmap-legend-dot-low" },
 ];
 
 type RegionSlot = {
