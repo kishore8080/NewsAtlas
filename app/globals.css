@@ -452,7 +452,7 @@
   }
 
   .heatmap-leaflet-map .leaflet-tile-pane {
-    filter: url(#periwinkle-map-filter), sepia(0.92) hue-rotate(185deg) saturate(3.5) brightness(1.15) contrast(1.1);
+    /* Clean dark basemap rendering */
   }
 
   .custom-leaflet-marker {

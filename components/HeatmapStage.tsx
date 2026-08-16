@@ -38,20 +38,6 @@ export default function HeatmapStage({
 }: HeatmapStageProps) {
   return (
     <section aria-label="Global news event heatmap" className="heatmap-stage" role="region">
-      {/* SVG Color Matrix Filter for exact periwinkle land + navy ocean matching reference image */}
-      <svg className="hidden absolute w-0 h-0 pointer-events-none" aria-hidden="true">
-        <filter id="periwinkle-map-filter">
-          <feColorMatrix
-            type="matrix"
-            values="
-              2.2  0.0  0.0  0 -0.03
-              2.6  0.0  0.0  0  0.02
-              3.6  0.0  0.0  0  0.08
-              0.0  0.0  0.0  1  0.00
-            "
-          />
-        </filter>
-      </svg>
 
       <LeafletHeatmap
         markers={markers}

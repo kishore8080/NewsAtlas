@@ -196,18 +196,18 @@ export default function LeafletHeatmap({
           tileerror: onTileError,
           tileload: onTileLoad,
         }}
-        url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
       />
 
-      {/* Official India Territory Layer (including J&K, Ladakh, PoK, Gilgit-Baltistan & Aksai Chin) */}
+      {/* Official India Territory Highlight Layer */}
       <GeoJSON
         data={indiaBoundaryGeoJSON as any}
         style={{
-          color: "#96b8e8",
-          weight: 2.2,
-          opacity: 0.95,
-          fillColor: "#5e81b4",
-          fillOpacity: 0.9,
+          color: "#60a5fa",
+          weight: 1.8,
+          opacity: 0.85,
+          fillColor: "#3b82f6",
+          fillOpacity: 0.12,
         }}
       />
 
