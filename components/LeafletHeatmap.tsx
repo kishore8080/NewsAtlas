@@ -6,13 +6,11 @@ import {
   Marker,
   Popup,
   TileLayer,
-  GeoJSON,
   useMap,
 } from "react-leaflet";
 import { useEffect, useMemo } from "react";
 import type { HeatmapMarker, HeatmapSeverity } from "@/lib/heatmap";
 import { getSeverityLabel } from "@/lib/heatmap";
-import { indiaBoundaryGeoJSON } from "@/lib/india-boundary";
 
 type LeafletHeatmapProps = {
   markers: HeatmapMarker[];
@@ -197,18 +195,6 @@ export default function LeafletHeatmap({
           tileload: onTileLoad,
         }}
         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      />
-
-      {/* Official India Territory Highlight Layer */}
-      <GeoJSON
-        data={indiaBoundaryGeoJSON as any}
-        style={{
-          color: "#60a5fa",
-          weight: 1.8,
-          opacity: 0.85,
-          fillColor: "#3b82f6",
-          fillOpacity: 0.12,
-        }}
       />
 
       <FitMarkers markers={markers} />
