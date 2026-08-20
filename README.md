@@ -1,2 +1,1 @@
-eazyprepAI 
-world news at one place
+ world news at one place
